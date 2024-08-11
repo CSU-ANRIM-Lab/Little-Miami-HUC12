@@ -66,20 +66,3 @@ Before using this, ensure your shapefiles are hosted in GeoJSON format, which is
     </script>
 </body>
 </html>
-```
-
-### Steps to Use:
-
-1. **Prepare GeoJSON Files:** 
-   - Convert your shapefiles (HUC12) into GeoJSON format.
-   - Host these GeoJSON files on your GitHub repository under a directory, e.g., `geojson/`.
-
-2. **Update Download Links:**
-   - Ensure that the shapefiles are correctly uploaded in a `shapefiles/` directory within your GitHub repository.
-   - The HUC12 identifier in the GeoJSON file should match the filename of the corresponding shapefile.
-
-3. **Embed and Test:**
-   - Embed this HTML file in your GitHub Pages or any web hosting service.
-   - Ensure the map loads correctly, and clicking on any HUC12 region should open a popup with a download link.
-
-This code gives a good starting point for creating an interactive map. You may need to tweak some parameters based on your exact data and file structure.
