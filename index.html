@@ -20,6 +20,17 @@
                 padding: 0;
                 margin: 0;
             }
+            .search-label {
+                font-size: 14px;
+                background-color: #fff;
+                padding: 5px;
+                border-radius: 5px;
+                box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                margin-bottom: 5px;
+                display: inline-block;
+                position: relative;
+                z-index: 1000;
+            }
         </style>
         <title>Map with Leaflet Basemap</title>
     </head>
@@ -44,7 +55,7 @@
         <script src="data/WBD_HU8_1.js"></script>
         <script>
             // Initialize the map with a basic CRS
-            var map = L.map('map').setView([39.6, -84.1], 10);
+            var map = L.map('map').setView([39.6, -84.1], 8);
 
             // Add a basemap layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -96,13 +107,25 @@
             var lay = L.control.layers.tree(null, overlaysTree, {collapsed: false});
             lay.addTo(map);
 
-            // Add search control for HUC12
+            // Add search control for HUC12 with a label
+            var searchLabel = L.control({position: 'topright'});
+            searchLabel.onAdd = function(map) {
+                var div = L.DomUtil.create('div', 'search-label');
+                div.innerHTML = '<strong>Search HUC12:</strong>';
+                return div;
+            };
+            searchLabel.addTo(map);
+
             var searchControl = new L.Control.Search({
                 layer: layer_WBD_HU12_0,
                 propertyName: 'HUC12',
                 marker: false,
                 moveToLocation: function(latlng, title, map) {
                     map.setView(latlng, 14); // Zoom level when searching
+                    var popup = L.popup()
+                        .setLatLng(latlng)
+                        .setContent('HUC12: ' + title)
+                        .openOn(map);
                 }
             });
 
