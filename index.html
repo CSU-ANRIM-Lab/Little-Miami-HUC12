@@ -20,16 +20,15 @@
                 padding: 0;
                 margin: 0;
             }
-            .search-label {
-                font-size: 14px;
-                background-color: #fff;
-                padding: 5px;
-                border-radius: 5px;
-                box-shadow: 0 0 5px rgba(0,0,0,0.5);
-                margin-bottom: 5px;
-                display: inline-block;
-                position: relative;
+            .search-container {
+                position: absolute;
+                top: 10px;
+                right: 10px;
                 z-index: 1000;
+                background-color: white;
+                padding: 10px;
+                border-radius: 8px;
+                box-shadow: 0 0 15px rgba(0,0,0,0.2);
             }
         </style>
         <title>Map with Leaflet Basemap</title>
@@ -37,6 +36,10 @@
     <body>
         <h1>Little Miami Watershed HUC12 Web Map</h1>
         <div id="map"></div>
+        <div class="search-container">
+            <label for="search-bar"><strong>Search HUC12:</strong></label>
+            <input type="text" id="search-bar" placeholder="Enter HUC12...">
+        </div>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
         <script src="js/L.Control.Locate.min.js"></script>
@@ -94,9 +97,6 @@
                 onEachFeature: pop_WBD_HU12_0
             }).addTo(map);
 
-            // Add zoom control to the map
-            L.control.zoom({position: 'topleft'}).addTo(map);
-
             // Add locate control to the map
             L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
 
@@ -107,33 +107,27 @@
             var lay = L.control.layers.tree(null, overlaysTree, {collapsed: false});
             lay.addTo(map);
 
-            // Add search control for HUC12 with a label
-            var searchLabel = L.control({position: 'topright'});
-            searchLabel.onAdd = function(map) {
-                var div = L.DomUtil.create('div', 'search-label');
-                div.innerHTML = '<strong>Search HUC12:</strong>';
-                return div;
-            };
-            searchLabel.addTo(map);
+            // Implement search functionality
+            document.getElementById('search-bar').addEventListener('input', function() {
+                var searchTerm = this.value.trim();
+                if (searchTerm.length === 12) {
+                    var foundFeature = null;
 
-            var searchControl = new L.Control.Search({
-                layer: layer_WBD_HU12_0,
-                propertyName: 'HUC12',
-                marker: false,
-                moveToLocation: function(latlng, title, map) {
-                    map.setView(latlng, 14); // Zoom level when searching
-                    var popup = L.popup()
-                        .setLatLng(latlng)
-                        .setContent('HUC12: ' + title)
-                        .openOn(map);
+                    layer_WBD_HU12_0.eachLayer(function(layer) {
+                        if (layer.feature.properties.HUC12 === searchTerm) {
+                            foundFeature = layer;
+                        }
+                    });
+
+                    if (foundFeature) {
+                        var latlng = foundFeature.getBounds().getCenter();
+                        map.setView(latlng, 14); // Zoom to the location
+                        foundFeature.openPopup();
+                    } else {
+                        alert('HUC12 not found.');
+                    }
                 }
             });
-
-            searchControl.on('search:locationfound', function(e) {
-                if (e.layer._popup) e.layer.openPopup();
-            });
-
-            map.addControl(searchControl);
         </script>
     </body>
 </html>
