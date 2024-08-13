@@ -14,19 +14,17 @@
         <link rel="stylesheet" href="css/leaflet-search.css">
         <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
         <style>
-        html, body, #map {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
-        }
+            html, body, #map {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
         </style>
-        <title></title>
+        <title>Map with Leaflet Basemap</title>
     </head>
     <body>
-        <div id="map">
-        </div>
-        <script src="js/qgis2web_expressions.js"></script>
+        <div id="map"></div>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
         <script src="js/L.Control.Locate.min.js"></script>
@@ -44,330 +42,58 @@
         <script src="data/WBD_HU12_0.js"></script>
         <script src="data/WBD_HU8_1.js"></script>
         <script>
-        var crs = new L.Proj.CRS('ESRI:102003', '+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0.9956,-1.9013,-0.5215,-0.025915,-0.009426,-0.011599,0.00062 +units=m +no_defs', {
-            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
-        });
-        var map = L.map('map', {
-            crs: crs,
-            continuousWorld: false,
-            worldCopyJump: false, 
-            zoomControl:false, maxZoom:28, minZoom:1
-        }).fitBounds([[38.33075117991867,-86.42193933921857],[41.22143687619394,-81.56652608256566]]);
-        var hash = new L.Hash(map);
-        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
-        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
-        // remove popup's row if "visible-with-data"
-        function removeEmptyRowsFromPopupContent(content, feature) {
-         var tempDiv = document.createElement('div');
-         tempDiv.innerHTML = content;
-         var rows = tempDiv.querySelectorAll('tr');
-         for (var i = 0; i < rows.length; i++) {
-             var td = rows[i].querySelector('td.visible-with-data');
-             var key = td ? td.id : '';
-             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
-                 rows[i].parentNode.removeChild(rows[i]);
-             }
-         }
-         return tempDiv.innerHTML;
-        }
-        // add class to format popup if it contains media
-		function addClassToPopupIfMedia(content, popup) {
-			var tempDiv = document.createElement('div');
-			tempDiv.innerHTML = content;
-			if (tempDiv.querySelector('td img')) {
-				popup._contentNode.classList.add('media');
-					// Delay to force the redraw
-					setTimeout(function() {
-						popup.update();
-					}, 10);
-			} else {
-				popup._contentNode.classList.remove('media');
-			}
-		}
-        var zoomControl = L.control.zoom({
-            position: 'topleft'
-        }).addTo(map);
-        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
-        var bounds_group = new L.featureGroup([]);
-        function setBounds() {
-        }
-        function pop_WBD_HU12_0(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['FID_WBDHU1'] !== null ? autolinker.link(feature.properties['FID_WBDHU1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['TNMID'] !== null ? autolinker.link(feature.properties['TNMID'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['METASOURCE'] !== null ? autolinker.link(feature.properties['METASOURCE'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SOURCEDATA'] !== null ? autolinker.link(feature.properties['SOURCEDATA'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SOURCEORIG'] !== null ? autolinker.link(feature.properties['SOURCEORIG'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SOURCEFEAT'] !== null ? autolinker.link(feature.properties['SOURCEFEAT'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['LOADDATE'] !== null ? autolinker.link(feature.properties['LOADDATE'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['GNIS_ID'] !== null ? autolinker.link(feature.properties['GNIS_ID'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['AREAACRES'] !== null ? autolinker.link(feature.properties['AREAACRES'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['AREASQKM'] !== null ? autolinker.link(feature.properties['AREASQKM'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['STATES'] !== null ? autolinker.link(feature.properties['STATES'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['HUC12'] !== null ? autolinker.link(feature.properties['HUC12'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['NAME'] !== null ? autolinker.link(feature.properties['NAME'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['HUTYPE'] !== null ? autolinker.link(feature.properties['HUTYPE'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['HUMOD'] !== null ? autolinker.link(feature.properties['HUMOD'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['TOHUC'] !== null ? autolinker.link(feature.properties['TOHUC'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['NONCONTRIB'] !== null ? autolinker.link(feature.properties['NONCONTRIB'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['NONCONTR_1'] !== null ? autolinker.link(feature.properties['NONCONTR_1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['FID_waters'] !== null ? autolinker.link(feature.properties['FID_waters'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['OBJECTID_1'] !== null ? autolinker.link(feature.properties['OBJECTID_1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Shape_Leng'] !== null ? autolinker.link(feature.properties['Shape_Leng'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Shape_Le_1'] !== null ? autolinker.link(feature.properties['Shape_Le_1'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Shape_Area'] !== null ? autolinker.link(feature.properties['Shape_Area'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
+            // Initialize the map with a basic CRS
+            var map = L.map('map').setView([39.5, -98.35], 4);
 
-        function style_WBD_HU12_0_0() {
-            return {
-                pane: 'pane_WBD_HU12_0',
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1.0, 
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(72,122,183,1.0)',
-                interactive: true,
-            }
-        }
-        map.createPane('pane_WBD_HU12_0');
-        map.getPane('pane_WBD_HU12_0').style.zIndex = 400;
-        map.getPane('pane_WBD_HU12_0').style['mix-blend-mode'] = 'normal';
-        var layer_WBD_HU12_0 = new L.geoJson(json_WBD_HU12_0, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_WBD_HU12_0',
-            layerName: 'layer_WBD_HU12_0',
-            pane: 'pane_WBD_HU12_0',
-            onEachFeature: pop_WBD_HU12_0,
-            style: style_WBD_HU12_0_0,
-        });
-        bounds_group.addLayer(layer_WBD_HU12_0);
-        map.addLayer(layer_WBD_HU12_0);
-        function pop_WBD_HU8_1(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['TNMID'] !== null ? autolinker.link(feature.properties['TNMID'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['METASOURCE'] !== null ? autolinker.link(feature.properties['METASOURCE'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SOURCEDATA'] !== null ? autolinker.link(feature.properties['SOURCEDATA'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SOURCEORIG'] !== null ? autolinker.link(feature.properties['SOURCEORIG'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['SOURCEFEAT'] !== null ? autolinker.link(feature.properties['SOURCEFEAT'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['LOADDATE'] !== null ? autolinker.link(feature.properties['LOADDATE'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['GNIS_ID'] !== null ? autolinker.link(feature.properties['GNIS_ID'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['AREAACRES'] !== null ? autolinker.link(feature.properties['AREAACRES'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['AREASQKM'] !== null ? autolinker.link(feature.properties['AREASQKM'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['STATES'] !== null ? autolinker.link(feature.properties['STATES'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['HUC8'] !== null ? autolinker.link(feature.properties['HUC8'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['NAME'] !== null ? autolinker.link(feature.properties['NAME'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Shape_Leng'] !== null ? autolinker.link(feature.properties['Shape_Leng'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Shape_Area'] !== null ? autolinker.link(feature.properties['Shape_Area'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
+            // Add a basemap layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
 
-        function style_WBD_HU8_1_0() {
-            return {
-                pane: 'pane_WBD_HU8_1',
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 5.0, 
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(125,139,143,0.0)',
-                interactive: true,
-            }
-        }
-        map.createPane('pane_WBD_HU8_1');
-        map.getPane('pane_WBD_HU8_1').style.zIndex = 401;
-        map.getPane('pane_WBD_HU8_1').style['mix-blend-mode'] = 'normal';
-        var layer_WBD_HU8_1 = new L.geoJson(json_WBD_HU8_1, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_WBD_HU8_1',
-            layerName: 'layer_WBD_HU8_1',
-            pane: 'pane_WBD_HU8_1',
-            onEachFeature: pop_WBD_HU8_1,
-            style: style_WBD_HU8_1_0,
-        });
-        bounds_group.addLayer(layer_WBD_HU8_1);
-        map.addLayer(layer_WBD_HU8_1);
-        var osmGeocoder = new L.Control.Geocoder({
-            collapsed: true,
-            position: 'topleft',
-            text: 'Search',
-            title: 'Testing'
-        }).addTo(map);
-        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
-        .className += ' fa fa-search';
-        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
-        .title += 'Search for a place';
-        var baseMaps = {};
-        var overlaysTree = [
-            {label: '<img src="legend/WBD_HU8_1.png" /> WBD_HU8', layer: layer_WBD_HU8_1},
-            {label: '<img src="legend/WBD_HU12_0.png" /> WBD_HU12', layer: layer_WBD_HU12_0},]
-        var lay = L.control.layers.tree(null, overlaysTree,{
-            //namedToggle: true,
-            //selectorBack: false,
-            //closedSymbol: '&#8862; &#x1f5c0;',
-            //openedSymbol: '&#8863; &#x1f5c1;',
-            //collapseAll: 'Collapse all',
-            //expandAll: 'Expand all',
-            collapsed: false, 
-        });
-        lay.addTo(map);
-		document.addEventListener("DOMContentLoaded", function() {
-            // set new Layers List height which considers toggle icon
-            function newLayersListHeight() {
-                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
-                if (layerScrollbarElement) {
-                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
-                    var originalHeight = layersListElement.style.height 
-                        || window.getComputedStyle(layersListElement).height;
-                    var newHeight = parseFloat(originalHeight) - 50;
-                    layersListElement.style.height = newHeight + 'px';
+            // Define popups for WBD_HU12
+            function pop_WBD_HU12_0(feature, layer) {
+                if (feature.properties) {
+                    layer.bindPopup('<strong>Name:</strong> ' + feature.properties.NAME + '<br><strong>HUC12:</strong> ' + feature.properties.HUC12);
                 }
             }
-            var isLayersListExpanded = true;
-            var controlLayersElement = document.querySelector('.leaflet-control-layers');
-            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
-            // toggle Collapsed/Expanded and apply new Layers List height
-            toggleLayerControl.addEventListener('click', function() {
-                if (isLayersListExpanded) {
-                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
-                } else {
-                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
-                }
-                isLayersListExpanded = !isLayersListExpanded;
-                newLayersListHeight()
-            });	
-			// apply new Layers List height if toggle layerstree
-			if (controlLayersElement) {
-				controlLayersElement.addEventListener('click', function(event) {
-					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
-					if (toggleLayerHeaderPointer) {
-						newLayersListHeight();
-					}
-				});
-			}
-            // Collapsed/Expanded at Start to apply new height
-            setTimeout(function() {
-                toggleLayerControl.click();
-            }, 10);
-            setTimeout(function() {
-                toggleLayerControl.click();
-            }, 10);
-            // Collapsed touch/small screen
-            var isSmallScreen = window.innerWidth < 650;
-            if (isSmallScreen) {
-                setTimeout(function() {
-                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
-                    isLayersListExpanded = !isLayersListExpanded;
-                }, 500);
-            }  
-        });       
-        setBounds();
-        map.addControl(new L.Control.Search({
-            layer: layer_WBD_HU12_0,
-            initial: false,
-            hideMarkerOnCollapse: true,
-            propertyName: 'HUC12'}));
-        document.getElementsByClassName('search-button')[0].className +=
-         ' fa fa-binoculars';
+
+            // Define the style for WBD_HU12 layer
+            function style_WBD_HU12_0_0() {
+                return {
+                    pane: 'pane_WBD_HU12_0',
+                    opacity: 1,
+                    color: 'rgba(35,35,35,1.0)',
+                    dashArray: '',
+                    lineCap: 'butt',
+                    lineJoin: 'miter',
+                    weight: 1.0, 
+                    fill: true,
+                    fillOpacity: 1,
+                    fillColor: 'rgba(72,122,183,1.0)',
+                    interactive: true,
+                };
+            }
+
+            // Add WBD_HU12 layer
+            map.createPane('pane_WBD_HU12_0');
+            map.getPane('pane_WBD_HU12_0').style.zIndex = 400;
+            var layer_WBD_HU12_0 = new L.geoJson(json_WBD_HU12_0, {
+                style: style_WBD_HU12_0_0,
+                onEachFeature: pop_WBD_HU12_0
+            }).addTo(map);
+
+            // Add zoom control to the map
+            L.control.zoom({position: 'topleft'}).addTo(map);
+
+            // Add locate control to the map
+            L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+
+            // Add layer control with WBD_HU12
+            var overlaysTree = [
+                {label: '<img src="legend/WBD_HU12_0.png" /> WBD_HU12', layer: layer_WBD_HU12_0},
+            ];
+            var lay = L.control.layers.tree(null, overlaysTree, {collapsed: false});
+            lay.addTo(map);
         </script>
     </body>
 </html>
