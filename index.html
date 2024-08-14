@@ -98,7 +98,7 @@
                 .then(response => response.json())
                 .then(data => {
                     layer_ACPF_SWOhio_HUC12s = new L.geoJson(data, {
-                        style: style_ACPF_SWOhio_HUC12_0s,
+                        style: style_ACPF_SWOhio_HUC12s_0,
                         onEachFeature: pop_ACPF_SWOhio_HUC12s
                     }).addTo(map);
                 })
