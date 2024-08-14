@@ -72,7 +72,7 @@
             }
 
             // Define the style for ACPF_SWOhio_HUC12s layer
-            function style_ACPF_SWOhio_HUC12s() {
+            function style_ACPF_SWOhio_HUC12s_0() {
                 return {
                     pane: 'pane_ACPF_SWOhio_HUC12s',
                     opacity: 1,
@@ -98,7 +98,7 @@
                 .then(response => response.json())
                 .then(data => {
                     layer_ACPF_SWOhio_HUC12s = new L.geoJson(data, {
-                        style: style_ACPF_SWOhio_HUC12s,
+                        style: style_ACPF_SWOhio_HUC12_0s,
                         onEachFeature: pop_ACPF_SWOhio_HUC12s
                     }).addTo(map);
                 })
@@ -112,7 +112,7 @@
 
             // Add layer control with ACPF_SWOhio_HUC12s
             var overlaysTree = [
-                {label: '<img src="legend/WBD_HU12_0.png" /> ACPF SW Ohio HUC12s', layer: layer_ACPF_SWOhio_HUC12s},
+                {label: '<img src="legend/ACPF_SWOhio_HUC12s.png" /> ACPF SW Ohio HUC12s', layer: layer_ACPF_SWOhio_HUC12s},
             ];
             var lay = L.control.layers.tree(null, overlaysTree, {collapsed: false});
             lay.addTo(map);
