@@ -54,7 +54,8 @@
         <script src="js/proj4.js"></script>
         <script src="js/proj4leaflet.js"></script>
         <script src="js/leaflet-search.js"></script>
-        <script src="data/ACPF_SWOhio_HUC12s.json"></script>
+        <script src="data/WBD_HU12_0.js"></script>
+        <script src="data/WBD_HU8_1.js"></script>
         <script>
             // Initialize the map with a basic CRS
             var map = L.map('map').setView([39.6, -84.1], 8);
@@ -64,17 +65,17 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Define popups for ACPF_SWOhio_HUC12s
-            function pop_ACPF_SWOhio_HUC12s(feature, layer) {
+            // Define popups for WBD_HU12
+            function pop_WBD_HU12_0(feature, layer) {
                 if (feature.properties) {
                     layer.bindPopup('<strong>Name:</strong> ' + feature.properties.NAME + '<br><strong>HUC12:</strong> ' + feature.properties.HUC12);
                 }
             }
 
-            // Define the style for ACPF_SWOhio_HUC12s layer
-            function style_ACPF_SWOhio_HUC12s_0() {
+            // Define the style for WBD_HU12 layer
+            function style_WBD_HU12_0_0() {
                 return {
-                    pane: 'pane_ACPF_SWOhio_HUC12s',
+                    pane: 'pane_WBD_HU12_0',
                     opacity: 1,
                     color: 'rgba(35,35,35,1.0)',
                     dashArray: '',
@@ -88,31 +89,20 @@
                 };
             }
 
-            // Add ACPF_SWOhio_HUC12s layer
-            map.createPane('pane_ACPF_SWOhio_HUC12s');
-            map.getPane('pane_ACPF_SWOhio_HUC12s').style.zIndex = 400;
-
-            // Load the GeoJSON data and add it to the map
-            var layer_ACPF_SWOhio_HUC12s;
-            fetch('data/ACPF_SWOhio_HUC12s.json')
-                .then(response => response.json())
-                .then(data => {
-                    layer_ACPF_SWOhio_HUC12s = new L.geoJson(data, {
-                        style: style_ACPF_SWOhio_HUC12s_0,
-                        onEachFeature: pop_ACPF_SWOhio_HUC12s
-                    }).addTo(map);
-                })
-                .catch(error => {
-                    console.error('Error loading the GeoJSON data:', error);
-                    alert("Failed to load the layer.");
-                });
+            // Add WBD_HU12 layer
+            map.createPane('pane_WBD_HU12_0');
+            map.getPane('pane_WBD_HU12_0').style.zIndex = 400;
+            var layer_WBD_HU12_0 = new L.geoJson(json_WBD_HU12_0, {
+                style: style_WBD_HU12_0_0,
+                onEachFeature: pop_WBD_HU12_0
+            }).addTo(map);
 
             // Add locate control to the map
             L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
 
-            // Add layer control with ACPF_SWOhio_HUC12s
+            // Add layer control with WBD_HU12
             var overlaysTree = [
-                {label: '<img src="legend/ACPF_SWOhio_HUC12s.png" /> ACPF SW Ohio HUC12s', layer: layer_ACPF_SWOhio_HUC12s},
+                {label: '<img src="legend/WBD_HU12_0.png" /> ACPF SW Ohio HUC12', layer: layer_WBD_HU12_0},
             ];
             var lay = L.control.layers.tree(null, overlaysTree, {collapsed: false});
             lay.addTo(map);
@@ -120,10 +110,10 @@
             // Implement search functionality
             document.getElementById('search-bar').addEventListener('input', function() {
                 var searchTerm = this.value.trim();
-                if (searchTerm.length === 12 && layer_ACPF_SWOhio_HUC12s) {
+                if (searchTerm.length === 12) {
                     var foundFeature = null;
 
-                    layer_ACPF_SWOhio_HUC12s.eachLayer(function(layer) {
+                    layer_WBD_HU12_0.eachLayer(function(layer) {
                         if (layer.feature.properties.HUC12 === searchTerm) {
                             foundFeature = layer;
                         }
