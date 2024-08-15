@@ -14,39 +14,19 @@
         <link rel="stylesheet" href="css/leaflet-search.css">
         <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
         <style>
-            html, body, #map {
-                width: 100%;
-                height: 100%;
-                padding: 0;
-                margin: 0;
-            }
-            .legend {
-                position: fixed;
-                bottom: 30px;
-                left: 30px;
-                z-index: 1000;
-                background-color: white;
-                padding: 10px;
-                border-radius: 5px;
-                box-shadow: 0 0 15px rgba(0,0,0,0.2);
-                font-size: 14px;
-            }
-            .legend i {
-                width: 18px;
-                height: 18px;
-                float: left;
-                margin-right: 8px;
-                opacity: 0.7;
-            }
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
         </style>
-        <title>Great Miami and Little Miami Watersheds - HUC12 ACPF Web Map</title>
+        <title></title>
     </head>
     <body>
-        <div id="map"></div>
-        <div class="legend">
-            <div><i style="background: #1f77b4"></i>ACPF SW Ohio HUC12</div>
-            <div><i style="background: #084594"></i>ACPF HUC12 Data Available</div>
+        <div id="map">
         </div>
+        <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
         <script src="js/L.Control.Locate.min.js"></script>
@@ -61,78 +41,290 @@
         <script src="js/proj4.js"></script>
         <script src="js/proj4leaflet.js"></script>
         <script src="js/leaflet-search.js"></script>
-        <script src="data/ACPF_SWOhio_HUC12s_0.js"></script> <!-- Updated to use the ACPF_SWOhio_HUC12s_0.js -->
-        <script src="data/WBD_HU8_1.js"></script>
+        <script src="data/ACPF_SWOhio_HUC12s_0.js"></script>
         <script>
-            // Initialize the map
-            var map = L.map('map').setView([39.6, -84.1], 8);
+        var crs = new L.Proj.CRS('ESRI:102003', '+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0.9956,-1.9013,-0.5215,-0.025915,-0.009426,-0.011599,0.00062 +units=m +no_defs', {
+            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
+        });
+        var map = L.map('map', {
+            crs: crs,
+            continuousWorld: false,
+            worldCopyJump: false, 
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[38.22603719203797,-86.20823591141377],[41.233225432895004,-81.0495873837826]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        function pop_ACPF_SWOhio_HUC12s_0(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID_1'] !== null ? autolinker.link(feature.properties['OBJECTID_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID_2'] !== null ? autolinker.link(feature.properties['OBJECTID_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STATENS'] !== null ? autolinker.link(feature.properties['STATENS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ALAND'] !== null ? autolinker.link(feature.properties['ALAND'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AWATER'] !== null ? autolinker.link(feature.properties['AWATER'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLAT'] !== null ? autolinker.link(feature.properties['INTPTLAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLON'] !== null ? autolinker.link(feature.properties['INTPTLON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID_WBDHU1'] !== null ? autolinker.link(feature.properties['FID_WBDHU1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TNMID'] !== null ? autolinker.link(feature.properties['TNMID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['METASOURCE'] !== null ? autolinker.link(feature.properties['METASOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LOADDATE'] !== null ? autolinker.link(feature.properties['LOADDATE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AREAACRES'] !== null ? autolinker.link(feature.properties['AREAACRES'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AREASQKM'] !== null ? autolinker.link(feature.properties['AREASQKM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STATES'] !== null ? autolinker.link(feature.properties['STATES'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HUC12'] !== null ? autolinker.link(feature.properties['HUC12'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HUTYPE'] !== null ? autolinker.link(feature.properties['HUTYPE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HUMOD'] !== null ? autolinker.link(feature.properties['HUMOD'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TOHUC'] !== null ? autolinker.link(feature.properties['TOHUC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NONCONTRIB'] !== null ? autolinker.link(feature.properties['NONCONTRIB'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NONCONTR_1'] !== null ? autolinker.link(feature.properties['NONCONTR_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Leng'] !== null ? autolinker.link(feature.properties['Shape_Leng'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ACPF'] !== null ? autolinker.link(feature.properties['ACPF'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Le_1'] !== null ? autolinker.link(feature.properties['Shape_Le_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Le_2'] !== null ? autolinker.link(feature.properties['Shape_Le_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Shape_Area'] !== null ? autolinker.link(feature.properties['Shape_Area'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
 
-            // Add a basemap layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // Define styles for the ACPF SW Ohio HUC12s layer
-            function style_ACPF_SWOhio_HUC12s_0_0(feature) {
-                return {
-                    color: '#1f77b4',
-                    weight: 1,
-                    fillOpacity: 0.7
-                };
+        function style_ACPF_SWOhio_HUC12s_0_0(feature) {
+            switch(String(feature.properties['ACPF'])) {
+                case '0':
+                    return {
+                pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(90,229,206,0.0)',
+                interactive: true,
             }
-
-            // Define styles for the highlighted HUC12
-            function highlightStyle(feature) {
-                return {
-                    color: '#084594',
-                    weight: 2,
-                    fillOpacity: 0.9
-                };
+                    break;
+                case '1':
+                    return {
+                pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(87,179,207,1.0)',
+                interactive: true,
             }
-
-            // Add the ACPF SW Ohio HUC12s layer
-            map.createPane('pane_ACPF_SWOhio_HUC12s_0');
-            map.getPane('pane_ACPF_SWOhio_HUC12s_0').style.zIndex = 400;
-            var layer_ACPF_SWOhio_HUC12s_0 = new L.geoJson(json_ACPF_SWOhio_HUC12s_0, {
-                style: style_ACPF_SWOhio_HUC12s_0_0,
-                onEachFeature: function (feature, layer) {
-                    layer.bindPopup('<strong>HUC12:</strong> ' + feature.properties.HUC12);
+                    break;
+                default:
+                    return {
+                pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(217,196,92,0.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_ACPF_SWOhio_HUC12s_0');
+        map.getPane('pane_ACPF_SWOhio_HUC12s_0').style.zIndex = 400;
+        map.getPane('pane_ACPF_SWOhio_HUC12s_0').style['mix-blend-mode'] = 'normal';
+        var layer_ACPF_SWOhio_HUC12s_0 = new L.geoJson(json_ACPF_SWOhio_HUC12s_0, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ACPF_SWOhio_HUC12s_0',
+            layerName: 'layer_ACPF_SWOhio_HUC12s_0',
+            pane: 'pane_ACPF_SWOhio_HUC12s_0',
+            onEachFeature: pop_ACPF_SWOhio_HUC12s_0,
+            style: style_ACPF_SWOhio_HUC12s_0_0,
+        });
+        bounds_group.addLayer(layer_ACPF_SWOhio_HUC12s_0);
+        map.addLayer(layer_ACPF_SWOhio_HUC12s_0);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: 'ACPF_SWOhio_HUC12s<br /><table><tr><td style="text-align: center;"><img src="legend/ACPF_SWOhio_HUC12s_0_00.png" /></td><td>0</td></tr><tr><td style="text-align: center;"><img src="legend/ACPF_SWOhio_HUC12s_0_11.png" /></td><td>1</td></tr><tr><td style="text-align: center;"><img src="legend/ACPF_SWOhio_HUC12s_0_2.png" /></td><td></td></tr></table>', layer: layer_ACPF_SWOhio_HUC12s_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
                 }
-            }).addTo(map);
-
-            // Highlight specific HUC12s (replace with actual HUC12s)
-            var highlightedHUC12List = ["123456789012", "098765432109"];
-            var highlightedLayer = L.geoJson(json_ACPF_SWOhio_HUC12s_0, {
-                style: highlightStyle,
-                filter: function (feature) {
-                    return highlightedHUC12List.includes(feature.properties.HUC12);
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
                 }
-            }).addTo(map);
-
-            // Add locate control to the map
-            L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
-
-            // Implement search functionality
-            document.getElementById('search-bar').addEventListener('input', function() {
-                var searchTerm = this.value.trim();
-                if (searchTerm.length === 12) {
-                    var foundFeature = null;
-
-                    layer_ACPF_SWOhio_HUC12s_0.eachLayer(function(layer) {
-                        if (layer.feature.properties.HUC12 === searchTerm) {
-                            foundFeature = layer;
-                        }
-                    });
-
-                    if (foundFeature) {
-                        var latlng = foundFeature.getBounds().getCenter();
-                        map.setView(latlng, 14); // Zoom to the location
-                        foundFeature.openPopup();
-                    } else {
-                        alert('HUC12 not found.');
-                    }
-                }
-            });
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_ACPF_SWOhio_HUC12s_0,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'HUC12'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
         </script>
     </body>
 </html>
