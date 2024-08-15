@@ -34,7 +34,7 @@
         <title>Map with Leaflet Basemap</title>
     </head>
     <body>
-        <h1>Great Miami and Little Miami Watersheds - HUC12 Web Map</h1>
+        <h1>Little Miami Watershed HUC12 Web Map</h1>
         <div id="map"></div>
         <div class="search-container">
             <label for="search-bar"><strong>Search HUC12:</strong></label>
@@ -72,21 +72,38 @@
                 }
             }
 
-            // Define the style for ACPF_SWOhio_HUC12s layer with conditional styling based on "ACPF" value
+            // Define the style for ACPF_SWOhio_HUC12s layer based on ACPF property
             function style_ACPF_SWOhio_HUC12s_0_0(feature) {
-                return {
-                    pane: 'pane_ACPF_SWOhio_HUC12s_0',
-                    opacity: 1,
-                    color: feature.properties.ACPF === 1 ? 'rgba(255,0,0,1.0)' : 'rgba(35,35,35,1.0)', // Highlight in red if ACPF is 1
-                    dashArray: '',
-                    lineCap: 'butt',
-                    lineJoin: 'miter',
-                    weight: 1.0, 
-                    fill: true,
-                    fillOpacity: 0.5,
-                    fillColor: feature.properties.ACPF === 1 ? 'rgba(255,165,0,1.0)' : 'rgba(72,122,183,1.0)', // Orange fill if ACPF is 1
-                    interactive: true,
-                };
+                switch(String(feature.properties['ACPF'])) {
+                    case '1':
+                        return {
+                            pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                            opacity: 1,
+                            color: 'rgba(35,35,35,1.0)',
+                            dashArray: '',
+                            lineCap: 'butt',
+                            lineJoin: 'miter',
+                            weight: 1.0, 
+                            fill: true,
+                            fillOpacity: 0.7,
+                            fillColor: 'rgba(87,179,207,1.0)', // Highlighted color
+                            interactive: true,
+                        };
+                    default:
+                        return {
+                            pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                            opacity: 1,
+                            color: 'rgba(35,35,35,1.0)',
+                            dashArray: '',
+                            lineCap: 'butt',
+                            lineJoin: 'miter',
+                            weight: 1.0, 
+                            fill: true,
+                            fillOpacity: 0.5,
+                            fillColor: 'rgba(72,122,183,1.0)', // Default color
+                            interactive: true,
+                        };
+                }
             }
 
             // Add ACPF_SWOhio_HUC12s layer
