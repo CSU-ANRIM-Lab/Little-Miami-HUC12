@@ -30,15 +30,34 @@
                 border-radius: 8px;
                 box-shadow: 0 0 15px rgba(0,0,0,0.2);
             }
+            .legend {
+                position: fixed;
+                bottom: 50px;
+                left: 50px;
+                width: 300px;
+                height: 140px;
+                border: 2px solid grey;
+                z-index: 9999;
+                font-size: 14px;
+                background-color: white;
+                opacity: 0.8;
+                padding: 10px;
+            }
         </style>
-        <title>Map with Leaflet Basemap</title>
+        <title>Great Miami and Little Miami Watersheds - HUC12 ACPF Web Map</title>
     </head>
     <body>
-        <h1>Little Miami Watershed HUC12 Web Map</h1>
+        <h1>Great Miami and Little Miami Watersheds - HUC12 ACPF Web Map</h1>
         <div id="map"></div>
         <div class="search-container">
             <label for="search-bar"><strong>Search HUC12:</strong></label>
             <input type="text" id="search-bar" placeholder="Enter HUC12...">
+        </div>
+        <div class="legend">
+            <b>Legend</b><br>
+            <i class="fa fa-square" style="color:#1f77b4"></i>&nbsp;ACPF SW Ohio HUC12<br>
+            <i class="fa fa-square" style="color:#FFFFFF; border:1px solid #000000;"></i>&nbsp;HUC12 with ACPF = 0<br>
+            <i class="fa fa-square" style="color:#084594"></i>&nbsp;ACPF HUC12 Data Available<br>
         </div>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
@@ -57,7 +76,7 @@
         <script src="data/ACPF_SWOhio_HUC12s_0.js"></script> <!-- Updated to use the ACPF_SWOhio_HUC12s_0.js -->
         <script src="data/WBD_HU8_1.js"></script>
         <script>
-            // Initialize the map with a basic CRS
+            // Initialize the map
             var map = L.map('map').setView([39.6, -84.1], 8);
 
             // Add a basemap layer
@@ -65,45 +84,54 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Define popups for ACPF_SWOhio_HUC12s
-            function pop_ACPF_SWOhio_HUC12s_0(feature, layer) {
-                if (feature.properties) {
-                    layer.bindPopup('<strong>Name:</strong> ' + feature.properties.Name + '<br><strong>HUC12:</strong> ' + feature.properties.HUC12);
+            // Define style for ACPF_SWOhio_HUC12s layer based on ACPF property
+            function style_ACPF_SWOhio_HUC12s_0_0(feature) {
+                if (feature.properties['ACPF'] === 0) {
+                    return {
+                        pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                        opacity: 1,
+                        color: 'rgba(35,35,35,1.0)',
+                        dashArray: '',
+                        lineCap: 'butt',
+                        lineJoin: 'miter',
+                        weight: 1.0,
+                        fill: true,
+                        fillOpacity: 0.1,
+                        fillColor: '#FFFFFF',
+                        interactive: true,
+                    };
+                } else {
+                    return {
+                        pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                        opacity: 1,
+                        color: 'rgba(35,35,35,1.0)',
+                        dashArray: '',
+                        lineCap: 'butt',
+                        lineJoin: 'miter',
+                        weight: 1.0,
+                        fill: true,
+                        fillOpacity: 0.7,
+                        fillColor: '#1f77b4',
+                        interactive: true,
+                    };
                 }
             }
 
-            // Define the style for ACPF_SWOhio_HUC12s layer based on ACPF property
-            function style_ACPF_SWOhio_HUC12s_0_0(feature) {
-                switch(String(feature.properties['ACPF'])) {
-                    case '1':
-                        return {
-                            pane: 'pane_ACPF_SWOhio_HUC12s_0',
-                            opacity: 1,
-                            color: 'rgba(35,35,35,1.0)',
-                            dashArray: '',
-                            lineCap: 'butt',
-                            lineJoin: 'miter',
-                            weight: 1.0, 
-                            fill: true,
-                            fillOpacity: 0.7,
-                            fillColor: 'rgba(87,179,207,1.0)', // Highlighted color
-                            interactive: true,
-                        };
-                    default:
-                        return {
-                            pane: 'pane_ACPF_SWOhio_HUC12s_0',
-                            opacity: 1,
-                            color: 'rgba(35,35,35,1.0)',
-                            dashArray: '',
-                            lineCap: 'butt',
-                            lineJoin: 'miter',
-                            weight: 1.0, 
-                            fill: true,
-                            fillOpacity: 0.5,
-                            fillColor: 'rgba(72,122,183,1.0)', // Default color
-                            interactive: true,
-                        };
-                }
+            // Highlighted HUC12 Style
+            function highlightStyle(feature) {
+                return {
+                    pane: 'pane_ACPF_SWOhio_HUC12s_0',
+                    opacity: 1,
+                    color: 'rgba(35,35,35,1.0)',
+                    dashArray: '',
+                    lineCap: 'butt',
+                    lineJoin: 'miter',
+                    weight: 2.0,
+                    fill: true,
+                    fillOpacity: 0.9,
+                    fillColor: '#084594',
+                    interactive: true,
+                };
             }
 
             // Add ACPF_SWOhio_HUC12s layer
@@ -114,12 +142,22 @@
                 onEachFeature: pop_ACPF_SWOhio_HUC12s_0
             }).addTo(map);
 
+            // Highlighted HUC12s
+            var highlightedHUC12List = ["123456789012", "098765432109"]; // Replace with actual HUC12s
+            var highlightedLayer = L.geoJson(json_ACPF_SWOhio_HUC12s_0, {
+                style: highlightStyle,
+                filter: function (feature, layer) {
+                    return highlightedHUC12List.includes(feature.properties.HUC12);
+                }
+            }).addTo(map);
+
             // Add locate control to the map
             L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
 
             // Add layer control with ACPF_SWOhio_HUC12s
             var overlaysTree = [
                 {label: '<img src="legend/ACPF_SWOhio_HUC12s_0.png" /> ACPF SW Ohio HUC12', layer: layer_ACPF_SWOhio_HUC12s_0},
+                {label: 'ACPF HUC12 Data Available', layer: highlightedLayer}
             ];
             var lay = L.control.layers.tree(null, overlaysTree, {collapsed: false});
             lay.addTo(map);
