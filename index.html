@@ -350,14 +350,21 @@
         });       
         setBounds();
 	function searchHUC12() {
-            var input = document.getElementById("search-huc12").value;
-            layer_SWOhioHUC12s_1.eachLayer(function(layer) {
-                if (layer.feature.properties.HUC12 === input) {
-                    map.fitBounds(layer.getBounds());
-                    layer.openPopup();
-                }
-            });
+    var input = document.getElementById("search-huc12").value;
+    var found = false;
+    
+    layer_SWOhioHUC12s_1.eachLayer(function(layer) {
+        if (layer.feature.properties.HUC12 === input) {
+            map.fitBounds(layer.getBounds());
+            layer.openPopup();
+            found = true;
         }
+    });
+
+    if (!found) {
+        alert("Could not find the HUC12.");
+    }
+}
         </script>
     </body>
 </html>
