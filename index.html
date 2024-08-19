@@ -6,167 +6,145 @@
         <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="css/leaflet.css">
-        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
-        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
-        <link rel="stylesheet" href="css/qgis2web.css">
-        <link rel="stylesheet" href="css/fontawesome-all.min.css">
-        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
         <style>
-        html, body, #map {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
-        }
+            html, body, #map {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            .leaflet-popup-content {
+                width: 200px;
+            }
+            .legend {
+                background-color: white;
+                line-height: 1.5;
+                padding: 10px;
+            }
         </style>
-        <title></title>
+        <title>Interactive Map</title>
     </head>
     <body>
         <div id="map"></div>
-        <script src="js/qgis2web_expressions.js"></script>
-        <script src="js/leaflet.js"></script>
-        <script src="js/L.Control.Layers.Tree.min.js"></script>
-        <script src="js/L.Control.Locate.min.js"></script>
-        <script src="js/leaflet.rotatedMarker.js"></script>
-        <script src="js/leaflet.pattern.js"></script>
-        <script src="js/leaflet-hash.js"></script>
-        <script src="js/Autolinker.min.js"></script>
-        <script src="js/rbush.min.js"></script>
-        <script src="js/labelgun.min.js"></script>
-        <script src="js/labels.js"></script>
-        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
-        <script src="js/proj4.js"></script>
-        <script src="js/proj4leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
         <script src="data/GMandLMBoundary_0.js"></script>
         <script src="data/SWOhioHUC12s_1.js"></script>
         <script>
-        var crs = new L.Proj.CRS('ESRI:102003', '+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0.9956,-1.9013,-0.5215,-0.025915,-0.009426,-0.011599,0.00062 +units=m +no_defs', {
-            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
-        });
+            var map = L.map('map', {
+                zoomControl: true, maxZoom: 28, minZoom: 1
+            }).fitBounds([[38.0, -85.0], [42.0, -81.0]]);
+            
+            var hash = new L.Hash(map);
+            map.attributionControl.setPrefix('');
+            
+            var bounds_group = new L.featureGroup([]);
+            function setBounds() {
+                if (bounds_group.getLayers().length) {
+                    map.fitBounds(bounds_group.getBounds());
+                }
+            }
 
-        var map = L.map('map', {
-            crs: crs,
-            continuousWorld: false,
-            worldCopyJump: false, 
-            zoomControl: false,
-            maxZoom: 28,
-            minZoom: 1
-        }).fitBounds([[38.20956082733599, -86.37733505706072], [41.210831167250404, -81.22503310439217]]);
-
-        // Add a basemap
-        var basemap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        var hash = new L.Hash(map);
-        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
-        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
-
-        // Add zoom control and locate button
-        var zoomControl = L.control.zoom({position: 'topleft'}).addTo(map);
-        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
-        var bounds_group = new L.featureGroup([]);
-        
-        function setBounds() {}
-
-        // Popup for GMandLMBoundary_0 layer
-        function pop_GMandLMBoundary_0(feature, layer) {
-            var popupContent = '<table>...</table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-            layer.on('popupopen', function(e) {
-                addClassToPopupIfMedia(content, e.popup);
+            // Add a basemap
+            var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             });
-            layer.bindPopup(content, { maxHeight: 400 });
-        }
+            map.addLayer(OpenStreetMap_Mapnik);
 
-        // Style for GMandLMBoundary_0 layer
-        function style_GMandLMBoundary_0_0() {
-            return { ... };
-        }
+            // Load and display GMandLMBoundary_0 layer
+            var layer_GMandLMBoundary_0 = L.geoJson(json_GMandLMBoundary_0, {
+                attribution: '',
+                interactive: true,
+                dataVar: 'json_GMandLMBoundary_0',
+                layerName: 'layer_GMandLMBoundary_0',
+                pane: 'pane_GMandLMBoundary_0',
+                onEachFeature: function (feature, layer) {
+                    layer.on({
+                        mouseover: function(e) {
+                            var layer = e.target;
+                            layer.setStyle({
+                                weight: 3,
+                                color: '#666',
+                                fillOpacity: 0.7
+                            });
+                        },
+                        mouseout: function(e) {
+                            layer_GMandLMBoundary_0.resetStyle(e.target);
+                        }
+                    });
+                    layer.bindPopup('<table><tr><th scope="row">Name</th><td>' + feature.properties.Name + '</td></tr></table>');
+                }
+            });
+            bounds_group.addLayer(layer_GMandLMBoundary_0);
+            map.addLayer(layer_GMandLMBoundary_0);
 
-        map.createPane('pane_GMandLMBoundary_0');
-        map.getPane('pane_GMandLMBoundary_0').style.zIndex = 400;
-        map.getPane('pane_GMandLMBoundary_0').style['mix-blend-mode'] = 'normal';
+            // Load and display SWOhioHUC12s_1 layer with popups
+            var layer_SWOhioHUC12s_1 = L.geoJson(json_SWOhioHUC12s_1, {
+                attribution: '',
+                interactive: true,
+                dataVar: 'json_SWOhioHUC12s_1',
+                layerName: 'layer_SWOhioHUC12s_1',
+                pane: 'pane_SWOhioHUC12s_1',
+                onEachFeature: function (feature, layer) {
+                    layer.on({
+                        mouseover: function(e) {
+                            var layer = e.target;
+                            layer.setStyle({
+                                weight: 3,
+                                color: '#666',
+                                fillOpacity: 0.7
+                            });
+                        },
+                        mouseout: function(e) {
+                            layer_SWOhioHUC12s_1.resetStyle(e.target);
+                        }
+                    });
+                    layer.bindPopup('<table><tr><th scope="row">Name</th><td>' + feature.properties.Name + '</td></tr><tr><th scope="row">HUC12</th><td>' + feature.properties.HUC12 + '</td></tr></table>');
+                }
+            });
+            bounds_group.addLayer(layer_SWOhioHUC12s_1);
+            map.addLayer(layer_SWOhioHUC12s_1);
 
-        var layer_GMandLMBoundary_0 = new L.geoJson(json_GMandLMBoundary_0, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_GMandLMBoundary_0',
-            layerName: 'layer_GMandLMBoundary_0',
-            pane: 'pane_GMandLMBoundary_0',
-            onEachFeature: pop_GMandLMBoundary_0,
-            style: style_GMandLMBoundary_0_0,
-        });
-
-        bounds_group.addLayer(layer_GMandLMBoundary_0);
-        map.addLayer(layer_GMandLMBoundary_0);
-
-        // Popup for SWOhioHUC12s_1 layer
-        function pop_SWOhioHUC12s_1(feature, layer) {
-            var popupContent = '<table>\
-                <tr><th>Name:</th><td>' + feature.properties['Name'] + '</td></tr>\
-                <tr><th>HUC12:</th><td>' + feature.properties['HUC12'] + '</td></tr>\
-            </table>';
-            layer.bindPopup(popupContent, { maxHeight: 400 });
-        }
-
-        // Style for SWOhioHUC12s_1 layer
-        function style_SWOhioHUC12s_1_0(feature) {
-            // Define styles based on ACPF property
-            ...
-        }
-
-        map.createPane('pane_SWOhioHUC12s_1');
-        map.getPane('pane_SWOhioHUC12s_1').style.zIndex = 401;
-        map.getPane('pane_SWOhioHUC12s_1').style['mix-blend-mode'] = 'normal';
-
-        var layer_SWOhioHUC12s_1 = new L.geoJson(json_SWOhioHUC12s_1, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_SWOhioHUC12s_1',
-            layerName: 'layer_SWOhioHUC12s_1',
-            pane: 'pane_SWOhioHUC12s_1',
-            onEachFeature: pop_SWOhioHUC12s_1,
-            style: style_SWOhioHUC12s_1_0,
-        });
-
-        bounds_group.addLayer(layer_SWOhioHUC12s_1);
-        map.addLayer(layer_SWOhioHUC12s_1);
-
-        // Add a search bar for HUC12
-        var huc12SearchControl = L.Control.extend({
-            onAdd: function(map) {
+            // Search functionality for HUC12
+            var searchControl = L.control({position: 'topright'});
+            searchControl.onAdd = function(map) {
                 var div = L.DomUtil.create('div', 'huc12-search-control');
                 div.innerHTML = '<label for="huc12-search">Search HUC12:</label><input id="huc12-search" type="text" placeholder="Enter HUC12">';
                 return div;
-            }
-        });
+            };
+            searchControl.addTo(map);
 
-        map.addControl(new huc12SearchControl({ position: 'topright' }));
-
-        document.getElementById('huc12-search').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                var huc12Value = e.target.value;
-                var targetLayer = null;
-                layer_SWOhioHUC12s_1.eachLayer(function(layer) {
-                    if (layer.feature.properties.HUC12 === huc12Value) {
-                        targetLayer = layer;
+            document.getElementById('huc12-search').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    var huc12Value = e.target.value;
+                    var targetLayer = null;
+                    layer_SWOhioHUC12s_1.eachLayer(function(layer) {
+                        if (layer.feature.properties.HUC12 === huc12Value) {
+                            targetLayer = layer;
+                        }
+                    });
+                    if (targetLayer) {
+                        map.fitBounds(targetLayer.getBounds());
+                        targetLayer.openPopup();
+                    } else {
+                        alert('HUC12 not found.');
                     }
-                });
-                if (targetLayer) {
-                    map.fitBounds(targetLayer
-
-.getBounds());
-                    targetLayer.openPopup();
-                } else {
-                    alert('HUC12 not found.');
                 }
-            }
-        });
+            });
 
-        setBounds();
+            // Adding a legend
+            var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function(map) {
+                var div = L.DomUtil.create('div', 'legend');
+                div.innerHTML += '<strong>Legend</strong><br>';
+                div.innerHTML += '<i style="background: #ff0000; width: 18px; height: 18px; display: inline-block;"></i> GM and LM Boundary<br>';
+                div.innerHTML += '<i style="background: #0000ff; width: 18px; height: 18px; display: inline-block;"></i> SW Ohio HUC12s<br>';
+                return div;
+            };
+            legend.addTo(map);
         </script>
     </body>
 </html>
