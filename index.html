@@ -25,12 +25,37 @@
             font-weight: bold;
             padding: 10px;
         }
+	#search-container {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #search-container label {
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        #search-container input {
+            width: 150px;
+            padding: 5px;
+        }
         </style>
         <title>Great Miami and Little Miami HUC12s -- ACPF Modeling</title>
     </head>
     <body>
        <div id="map-title">Great Miami and Little Miami HUC12s -- ACPF Modeling</div>
-        <div id="map"></div>
+        <div id="map"></div>	    
+	<div id="search-container">
+            <label for="search-huc12">Search HUC12:</label>
+            <input type="text" id="search-huc12" placeholder="Enter HUC12">
+            <button onclick="searchHUC12()">Go</button>
+        </div>
+        <div id="map"></div>        
+        <script>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
@@ -394,6 +419,15 @@
             }  
         });       
         setBounds();
+	function searchHUC12() {
+            var input = document.getElementById("search-huc12").value;
+            layer_SWOhioHUC12s_1.eachLayer(function(layer) {
+                if (layer.feature.properties.HUC12 === input) {
+                    map.fitBounds(layer.getBounds());
+                    layer.openPopup();
+                }
+            });
+        }
         </script>
     </body>
 </html>
