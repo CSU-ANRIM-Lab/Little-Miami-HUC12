@@ -28,10 +28,12 @@
     </head>
     <body>
         <div id="map"></div>
+        <script> alert('Script loaded successfully');
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
         <script src="data/GMandLMBoundary_0.js"></script>
         <script src="data/SWOhioHUC12s_1.js"></script>
+       
         <script>
             var map = L.map('map', {
                 zoomControl: true, maxZoom: 28, minZoom: 1
@@ -145,6 +147,7 @@
                 return div;
             };
             legend.addTo(map);
+        </script>
         </script>
     </body>
 </html>
