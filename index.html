@@ -73,32 +73,6 @@
         <script src="data/GMandLMBoundary_0.js"></script>
         <script src="data/SWOhioHUC12s_1.js"></script>
         <script>
-<script>
-// Function to search for a HUC12 and zoom to it
-function searchHUC12() {
-    // Get the HUC12 number from the input field
-    var huc12Number = document.getElementById('search-huc12').value;
-
-    if (!huc12Number) {
-        alert("Please enter a HUC12 number.");
-        return;
-    }
-
-    var found = false;
-
-    map.eachLayer(function(layer) {
-        if (layer.feature && layer.feature.properties['HUC12'] === huc12Number) {
-            map.fitBounds(layer.getBounds());
-            layer.openPopup();
-            found = true;
-        }
-    });
-
-    if (!found) {
-        alert("Could not find the HUC12.");
-    }
-}
-</script>
         var crs = new L.Proj.CRS('ESRI:102003', '+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0.9956,-1.9013,-0.5215,-0.025915,-0.009426,-0.011599,0.00062 +units=m +no_defs', {
             resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
         });
