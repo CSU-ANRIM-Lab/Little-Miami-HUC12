@@ -207,12 +207,15 @@
         function pop_SWOhioHUC12s_1(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['HUC12'] !== null ? autolinker.link(feature.properties['HUC12'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">HUC12: </th>\
+		        <td colspan="2">' + (feature.properties['HUC12'] !== null ? autolinker.link(feature.properties['HUC12'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
+		        <th scope="row">TOHUC: </th>\
                         <td colspan="2">' + (feature.properties['TOHUC'] !== null ? autolinker.link(feature.properties['TOHUC'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
+		        <th scope="row">Name: </th>\
                         <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     </table>';
