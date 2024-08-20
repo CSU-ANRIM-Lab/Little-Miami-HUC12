@@ -75,10 +75,9 @@
     resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
 });
 
+<script>
+// Initialize the map with default CRS (EPSG:3857)
 var map = L.map('map', {
-    crs: crs,
-    continuousWorld: false,
-    worldCopyJump: false, 
     zoomControl: false,
     maxZoom: 28,
     minZoom: 1
@@ -88,7 +87,29 @@ var map = L.map('map', {
 var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map); 
+}).addTo(map);
+
+// Convert GMandLMBoundary_0.js to EPSG:3857
+function convertToEPSG3857(geojsonData) {
+    return L.Proj.geoJson(geojsonData, {
+        // Proj4 projection string for EPSG:3857 is already used by default in Leaflet, so no need to redefine.
+        onEachFeature: function (feature, layer) {
+            // Bind popups or any other interactive elements as needed
+            var popupContent = '<table>' +
+                '<tr><td colspan="2">' + (feature.properties['OBJECTID'] || '') + '</td></tr>' +
+                // Add other fields as needed
+                '</table>';
+            layer.bindPopup(popupContent);
+        }
+    });
+}
+
+var layer_GMandLMBoundary_0 = convertToEPSG3857(json_GMandLMBoundary_0);
+layer_GMandLMBoundary_0.addTo(map);
+
+// Convert SWOhioHUC12s_1.js to EPSG:3857
+var layer_SWOhioHUC12s_1 = convertToEPSG3857(json_SWOhioHUC12s_1);
+layer_SWOhioHUC12s_1.addTo(map);
 
     var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
