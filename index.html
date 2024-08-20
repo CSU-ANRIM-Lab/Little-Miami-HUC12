@@ -61,23 +61,81 @@
     <script src="https://unpkg.com/proj4leaflet@1.0.2/src/proj4leaflet.js"></script>
     <script src="data/GMandLMBoundary_0.js"></script>
     <script src="data/SWOhioHUC12s_1.js"></script>
+    <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.rotatedMarker.js"></script>
+    <script src="js/leaflet.pattern.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/rbush.min.js"></script>
+    <script src="js/labelgun.min.js"></script>
+    <script src="js/labels.js"></script>
+    <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+
     <script>
-        // Initialize the map with EPSG:3857 projection (default for Leaflet)
-        var map = L.map('map').setView([39.5, -84], 8);
+        // Define projection CRS
+        var crs = new L.Proj.CRS('ESRI:102003', '+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0.9956,-1.9013,-0.5215,-0.025915,-0.009426,-0.011599,0.00062 +units=m +no_defs', {
+            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
+        });
+
+        // Initialize the map with EPSG:3857 projection
+        var map = L.map('map', {
+            crs: crs,
+            continuousWorld: false,
+            worldCopyJump: false, 
+            zoomControl: false,
+            maxZoom: 28,
+            minZoom: 1
+        }).fitBounds([[38.20956082733599, -86.37733505706072], [41.210831167250404, -81.22503310439217]]);
 
         // Add OpenStreetMap base layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Layer: GMandLMBoundary_0
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+
+        // Remove empty rows from popup content
+        function removeEmptyRowsFromPopupContent(content, feature) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var rows = tempDiv.querySelectorAll('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var td = rows[i].querySelector('td.visible-with-data');
+                var key = td ? td.id : '';
+                if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                    rows[i].parentNode.removeChild(rows[i]);
+                }
+            }
+            return tempDiv.innerHTML;
+        }
+
+        // Add class to format popup if it contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            if (tempDiv.querySelector('td img')) {
+                popup._contentNode.classList.add('media');
+                setTimeout(function() {
+                    popup.update();
+                }, 10);
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+
+        // Layers and popups
         function pop_GMandLMBoundary_0(feature, layer) {
             var popupContent = '<table>\
-                <tr><td colspan="2">' + (feature.properties['OBJECTID'] !== null ? feature.properties['OBJECTID'] : '') + '</td></tr>\
+                <tr><td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td></tr>\
                 <!-- Additional rows for other properties -->\
             </table>';
-            layer.bindPopup(popupContent, { maxHeight: 400 });
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+            layer.on('popupopen', function(e) {
+                addClassToPopupIfMedia(content, e.popup);
+            });
+            layer.bindPopup(content, { maxHeight: 400 });
         }
 
         function style_GMandLMBoundary_0() {
@@ -89,18 +147,21 @@
             };
         }
 
-        var layer_GMandLMBoundary_0 = L.geoJson(json_GMandLMBoundary_0, {
+        var layer_GMandLMBoundary_0 = new L.geoJson(json_GMandLMBoundary_0, {
             style: style_GMandLMBoundary_0,
             onEachFeature: pop_GMandLMBoundary_0
         }).addTo(map);
 
-        // Layer: SWOhioHUC12s_1
         function pop_SWOhioHUC12s_1(feature, layer) {
             var popupContent = '<table>\
-                <tr><th scope="row">HUC12: </th><td>' + (feature.properties['HUC12'] !== null ? feature.properties['HUC12'] : '') + '</td></tr>\
+                <tr><th scope="row">HUC12: </th><td>' + (feature.properties['HUC12'] !== null ? autolinker.link(feature.properties['HUC12'].toLocaleString()) : '') + '</td></tr>\
                 <!-- Additional rows for other properties -->\
             </table>';
-            layer.bindPopup(popupContent, { maxHeight: 400 });
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+            layer.on('popupopen', function(e) {
+                addClassToPopupIfMedia(content, e.popup);
+            });
+            layer.bindPopup(content, { maxHeight: 400 });
         }
 
         function style_SWOhioHUC12s_1() {
@@ -110,26 +171,33 @@
                 opacity: 1,
                 fillOpacity: 0
             };
-        }
+       
 
-        var layer_SWOhioHUC12s_1 = L.geoJson(json_SWOhioHUC12s_1, {
+ }
+
+        var layer_SWOhioHUC12s_1 = new L.geoJson(json_SWOhioHUC12s_1, {
             style: style_SWOhioHUC12s_1,
             onEachFeature: pop_SWOhioHUC12s_1
         }).addTo(map);
 
         // Search functionality
         function searchHUC12() {
-            var searchTerm = document.getElementById('search-huc12').value;
+            var input = document.getElementById('search-huc12').value;
+            var found = false;
+
+            // Check if HUC12 exists in the layer
             layer_SWOhioHUC12s_1.eachLayer(function(layer) {
-                if (layer.feature.properties.HUC12 === searchTerm) {
-                    map.fitBounds(layer.getBounds());
+                if (layer.feature.properties.HUC12.toString() === input) {
+                    map.setView(layer.getLatLng(), 12); // Zoom into the found layer
                     layer.openPopup();
+                    found = true;
                 }
             });
-        }
 
-        // Add hash to URL for map state preservation
-        var hash = new L.Hash(map);
+            if (!found) {
+                alert('HUC12 not found.');
+            }
+        }
     </script>
 </body>
 </html>
