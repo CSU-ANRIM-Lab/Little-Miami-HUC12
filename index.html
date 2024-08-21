@@ -75,21 +75,31 @@
         <script src="./resources/qgis2web.js"></script>
 
         <script>
-            // Map initialization code
+            // Initialize the map
             var map = new ol.Map({
                 target: 'map',
                 layers: [
-                    // Add your layers here
+                    new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                    }),
+                    // Add your SWOhioHUC12 layer here
+                    new ol.layer.Vector({
+                        source: new ol.source.Vector({
+                            url: 'layers/SWOhioHUC12_1.js', // Path to your HUC12 data
+                            format: new ol.format.GeoJSON()
+                        }),
+                        style: SWOhioHUC12_1_style // Apply the corresponding style
+                    })
                 ],
                 view: new ol.View({
-                    center: [0, 0],
-                    zoom: 2
+                    center: ol.proj.fromLonLat([-84.5, 39.75]), // Set the initial center point of the map
+                    zoom: 8 // Set initial zoom level
                 })
             });
 
             // Adding search functionality
             var searchLayer = new ol.control.SearchLayer({
-                layer: yourHUC12Layer, // Reference to your HUC12 layer
+                layer: map.getLayers().item(1), // Assuming the SWOhioHUC12 layer is the second layer added
                 property: 'HUC12', // Property in the feature that contains HUC12
                 target: $(".ol-attribution")[0],
                 placeholder: 'Search HUC12',
