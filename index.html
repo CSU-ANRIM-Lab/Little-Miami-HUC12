@@ -34,7 +34,17 @@
             .ol-control {
                 background-color: rgba(255,255,255,.4) !important;
                 padding: 2px !important;
-            } 
+            }
+            #search-container {
+                position: absolute;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1000;
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: 5px;
+                border-radius: 4px;
+            }
         </style>
         <style>
             html, body, #map {
@@ -47,6 +57,11 @@
         <title>Great Miami and Little Miami Watersheds -- ACPF Modeling</title>
     </head>
     <body>
+        <div id="search-container">
+            <input type="text" id="huc12-search" placeholder="Enter HUC12..." />
+            <button onclick="searchHUC12()">Search</button>
+            <div id="search-result" style="margin-top: 5px; color: red;"></div>
+        </div>
         <div id="map">
             <div id="popup" class="ol-popup">
                 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
@@ -97,33 +112,32 @@
                 })
             });
 
-            // Adding search functionality
-            var searchLayer = new ol.control.SearchLayer({
-                layer: map.getLayers().item(1), // Assuming the SWOhioHUC12 layer is the second layer added
-                property: 'HUC12', // Property in the feature that contains HUC12
-                target: $(".ol-attribution")[0],
-                placeholder: 'Search HUC12',
-                maxItems: 1000,
-                getTitle: function(feature) {
-                    return feature.get('HUC12'); // Return HUC12 as title
-                },
-                autoComplete: true
-            });
+            // Search function for HUC12
+            function searchHUC12() {
+                var huc12 = document.getElementById('huc12-search').value;
+                var source = map.getLayers().item(1).getSource();
+                var features = source.getFeatures();
+                var found = false;
 
-            // Adding search layer control to the map
-            map.addControl(searchLayer);
-
-            // Event listener for when a feature is selected
-            searchLayer.on('select', function(event) {
-                var selectedFeature = event.search;
-                if (selectedFeature) {
-                    var featureExtent = selectedFeature.getGeometry().getExtent();
-                    map.getView().fit(featureExtent, {
-                        maxZoom: 12, // Adjust zoom level as needed
-                        duration: 1000
-                    });
+                for (var i = 0; i < features.length; i++) {
+                    if (features[i].get('HUC12') === huc12) {
+                        var featureExtent = features[i].getGeometry().getExtent();
+                        map.getView().fit(featureExtent, {
+                            maxZoom: 12, // Adjust zoom level as needed
+                            duration: 1000
+                        });
+                        found = true;
+                        break;
+                    }
                 }
-            });
+
+                var searchResult = document.getElementById('search-result');
+                if (!found) {
+                    searchResult.innerHTML = 'HUC12 could not be found.';
+                } else {
+                    searchResult.innerHTML = '';
+                }
+            }
         </script>
     </body>
 </html>
