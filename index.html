@@ -45,6 +45,45 @@
                 padding: 5px;
                 border-radius: 4px;
             }
+            .ol-popup {
+                position: absolute;
+                background-color: white;
+                padding: 5px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                bottom: 12px;
+                left: -50px;
+                min-width: 180px;
+            }
+            .ol-popup:after, .ol-popup:before {
+                top: 100%;
+                border: solid transparent;
+                content: " ";
+                height: 0;
+                width: 0;
+                position: absolute;
+                pointer-events: none;
+            }
+            .ol-popup:after {
+                border-color: rgba(255, 255, 255, 0);
+                border-top-color: white;
+                border-width: 10px;
+                left: 48px;
+                margin-left: -10px;
+            }
+            .ol-popup:before {
+                border-color: rgba(204, 204, 204, 0);
+                border-top-color: #ccc;
+                border-width: 11px;
+                left: 48px;
+                margin-left: -11px;
+            }
+            .ol-popup-closer {
+                text-decoration: none;
+                position: absolute;
+                top: 2px;
+                right: 8px;
+            }
         </style>
         <style>
             html, body, #map {
@@ -112,6 +151,23 @@
                 })
             });
 
+            // Create a popup overlay
+            var popup = new ol.Overlay({
+                element: document.getElementById('popup'),
+                autoPan: true,
+                autoPanAnimation: {
+                    duration: 250
+                }
+            });
+            map.addOverlay(popup);
+
+            var popupCloser = document.getElementById('popup-closer');
+            popupCloser.onclick = function() {
+                popup.setPosition(undefined);
+                popupCloser.blur();
+                return false;
+            };
+
             // Search function for HUC12
             function searchHUC12() {
                 var huc12 = document.getElementById('huc12-search').value;
@@ -126,6 +182,13 @@
                             maxZoom: 12, // Adjust zoom level as needed
                             duration: 1000
                         });
+
+                        // Set the popup content and position it at the feature's center
+                        var coordinates = ol.extent.getCenter(featureExtent);
+                        var content = document.getElementById('popup-content');
+                        content.innerHTML = '<strong>HUC12: </strong>' + huc12;
+                        popup.setPosition(coordinates);
+
                         found = true;
                         break;
                     }
