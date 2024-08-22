@@ -13,6 +13,7 @@
         <link href="resources/ol-geocoder.min.css" rel="stylesheet">
         <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
         <link rel="stylesheet" href="./resources/qgis2web.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Added jQuery -->
         <style>
             html, body {
                 background-color: #ffffff;
@@ -53,6 +54,11 @@
                 <div id="popup-content"></div>
             </div>
         </div>
+
+        <!-- Search bar container -->
+        <div id="search-bar-container" class="ol-control ol-unselectable" style="position: absolute; top: 10px; left: 10px; z-index: 1000;">
+        </div>
+
         <script src="resources/qgis2web_expressions.js"></script>
         <script src="resources/proj4.js"></script>
         <script>
@@ -101,7 +107,7 @@
             var searchLayer = new ol.control.SearchLayer({
                 layer: map.getLayers().item(1), // Assuming the SWOhioHUC12 layer is the second layer added
                 property: 'HUC12', // Property in the feature that contains HUC12
-                target: $(".ol-attribution")[0],
+                target: document.getElementById('search-bar-container'), // Updated target to point to a valid container
                 placeholder: 'Search HUC12',
                 maxItems: 1000,
                 getTitle: function(feature) {
@@ -127,4 +133,3 @@
         </script>
     </body>
 </html>
-
