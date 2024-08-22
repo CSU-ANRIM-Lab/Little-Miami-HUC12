@@ -35,6 +35,22 @@
                 background-color: rgba(255,255,255,.4) !important;
                 padding: 2px !important;
             }
+
+            /* Position the search bar below the legend */
+            #search-container {
+                position: absolute;
+                top: 100px; /* Adjust this to position it below the legend */
+                left: 10px;
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: 10px;
+                border-radius: 4px;
+                z-index: 1000;
+            }
+
+            #search-result {
+                margin-top: 5px;
+                color: red;
+            }
         </style>
         <style>
             html, body, #map {
@@ -47,17 +63,20 @@
         <title>Great Miami and Little Miami Watersheds -- ACPF Modeling</title>
     </head>
     <body>
-        <!-- Search Bar for HUC12 -->
-        <input type="text" id="huc12-search" placeholder="Search HUC12" style="position: absolute; top: 10px; left: 10px; z-index: 1000; padding: 5px;">
-        <button id="search-button" style="position: absolute; top: 10px; left: 200px; z-index: 1000; padding: 5px;">Search</button>
-        <div id="search-result" style="position: absolute; top: 50px; left: 10px; z-index: 1000; color: red;"></div>
-        
         <div id="map">
             <div id="popup" class="ol-popup">
                 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
                 <div id="popup-content"></div>
             </div>
         </div>
+
+        <!-- Search bar container -->
+        <div id="search-container">
+            <input type="text" id="huc12-input" placeholder="Enter HUC12">
+            <button id="search-button">Search</button>
+            <div id="search-result"></div>
+        </div>
+
         <script src="resources/qgis2web_expressions.js"></script>
         <script src="resources/proj4.js"></script>
         <script>
@@ -103,85 +122,13 @@
             });
 
             // Adding search functionality
-            var searchLayer = new ol.control.SearchLayer({
-                layer: map.getLayers().item(1), // Assuming the SWOhioHUC12 layer is the second layer added
-                property: 'HUC12', // Property in the feature that contains HUC12
-                target: $(".ol-attribution")[0],
-                placeholder: 'Search HUC12',
-                maxItems: 1000,
-                getTitle: function(feature) {
-                    return feature.get('HUC12'); // Return HUC12 as title
-                },
-                autoComplete: true
-            });
-
-            // Adding search layer control to the map
-            map.addControl(searchLayer);
-
-            // Event listener for when a feature is selected
-            searchLayer.on('select', function(event) {
-                var selectedFeature = event.search;
-                if (selectedFeature) {
-                    var featureExtent = selectedFeature.getGeometry().getExtent();
-                    map.getView().fit(featureExtent, {
-                        maxZoom: 12, // Adjust zoom level as needed
-                        duration: 1000
-                    });
-                }
-            });
-
-            // Adding a Pin to the Searched HUC12:
-            var pinLayer = new ol.layer.Vector({
-                source: new ol.source.Vector(),
-                style: new ol.style.Style({
-                    image: new ol.style.Icon({
-                        src: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                        scale: 1.0
-                    })
-                })
-            });
-            map.addLayer(pinLayer);
-
-            searchLayer.on('select', function(event) {
-                var selectedFeature = event.search;
-                if (selectedFeature) {
-                    var featureExtent = selectedFeature.getGeometry().getExtent();
-                    map.getView().fit(featureExtent, {
-                        maxZoom: 12,
-                        duration: 1000
-                    });
-
-                    // Add a pin at the center of the feature's geometry
-                    var coordinates = ol.extent.getCenter(featureExtent);
-                    var pinFeature = new ol.Feature({
-                        geometry: new ol.geom.Point(coordinates)
-                    });
-                    pinLayer.getSource().clear(); // Clear any existing pin
-                    pinLayer.getSource().addFeature(pinFeature);
-                }
-            });
-
-            // Remove the pin when the map is clicked
-            map.on('singleclick', function(evt) {
-                map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-                    if (feature.get('HUC12')) {
-                        pinLayer.getSource().clear(); // Clear the pin
-                    }
-                });
-            });
-
-            // Custom Search Functionality for HUC12
-            document.getElementById('search-button').addEventListener('click', function () {
-                var huc12Value = document.getElementById('huc12-search').value.trim();
+            document.getElementById('search-button').addEventListener('click', function() {
+                var huc12Input = document.getElementById('huc12-input').value.trim();
                 var found = false;
-
-                // Clear previous search results
-                pinLayer.getSource().clear();
-                document.getElementById('search-result').innerText = "";
-
-                // Search through the features in the SWOhioHUC12 layer
-                map.getLayers().item(1).getSource().forEachFeature(function (feature) {
-                    if (feature.get('HUC12') === huc12Value) {
+                var vectorLayer = map.getLayers().item(1); // Assuming the SWOhioHUC12 layer is the second layer added
+                
+                vectorLayer.getSource().getFeatures().forEach(function(feature) {
+                    if (feature.get('HUC12') === huc12Input) {
                         found = true;
                         var featureExtent = feature.getGeometry().getExtent();
                         map.getView().fit(featureExtent, {
@@ -191,19 +138,40 @@
 
                         // Add a pin at the center of the feature's geometry
                         var coordinates = ol.extent.getCenter(featureExtent);
+                        var pinLayer = new ol.layer.Vector({
+                            source: new ol.source.Vector(),
+                            style: new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    src: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                                    scale: 1.0
+                                })
+                            })
+                        });
+                        map.addLayer(pinLayer);
                         var pinFeature = new ol.Feature({
                             geometry: new ol.geom.Point(coordinates)
                         });
-                        pin
-
-Layer.getSource().addFeature(pinFeature);
+                        pinLayer.getSource().clear(); // Clear any existing pin
+                        pinLayer.getSource().addFeature(pinFeature);
                     }
                 });
 
                 // Display a message if HUC12 is not found
                 if (!found) {
                     document.getElementById('search-result').innerText = "HUC12 is not found.";
+                } else {
+                    document.getElementById('search-result').innerText = ""; // Clear previous message if found
                 }
+            });
+
+            // Remove the pin when the map is clicked
+            map.on('singleclick', function(evt) {
+                map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                    if (feature.get('HUC12')) {
+                        var pinLayer = map.getLayers().item(map.getLayers().getLength() - 1);
+                        pinLayer.getSource().clear(); // Clear the pin
+                    }
+                });
             });
         </script>
     </body>
