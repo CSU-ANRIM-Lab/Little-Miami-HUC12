@@ -47,6 +47,11 @@
         <title>Great Miami and Little Miami Watersheds -- ACPF Modeling</title>
     </head>
     <body>
+        <!-- Search Bar for HUC12 -->
+        <input type="text" id="huc12-search" placeholder="Search HUC12" style="position: absolute; top: 10px; left: 10px; z-index: 1000; padding: 5px;">
+        <button id="search-button" style="position: absolute; top: 10px; left: 200px; z-index: 1000; padding: 5px;">Search</button>
+        <div id="search-result" style="position: absolute; top: 50px; left: 10px; z-index: 1000; color: red;"></div>
+        
         <div id="map">
             <div id="popup" class="ol-popup">
                 <a href="#" id="popup-closer" class="ol-popup-closer"></a>
@@ -125,47 +130,81 @@
                 }
             });
 
-// Adding a Pin to the Searched HUC12:
-// Inside the script tag after the searchLayer.on('select', function(event) { ... });
+            // Adding a Pin to the Searched HUC12:
+            var pinLayer = new ol.layer.Vector({
+                source: new ol.source.Vector(),
+                style: new ol.style.Style({
+                    image: new ol.style.Icon({
+                        src: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scale: 1.0
+                    })
+                })
+            });
+            map.addLayer(pinLayer);
 
-var pinLayer = new ol.layer.Vector({
-    source: new ol.source.Vector(),
-    style: new ol.style.Style({
-        image: new ol.style.Icon({
-            src: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-            scale: 1.0
-        })
-    })
-});
-map.addLayer(pinLayer);
+            searchLayer.on('select', function(event) {
+                var selectedFeature = event.search;
+                if (selectedFeature) {
+                    var featureExtent = selectedFeature.getGeometry().getExtent();
+                    map.getView().fit(featureExtent, {
+                        maxZoom: 12,
+                        duration: 1000
+                    });
 
-searchLayer.on('select', function(event) {
-    var selectedFeature = event.search;
-    if (selectedFeature) {
-        var featureExtent = selectedFeature.getGeometry().getExtent();
-        map.getView().fit(featureExtent, {
-            maxZoom: 12,
-            duration: 1000
-        });
+                    // Add a pin at the center of the feature's geometry
+                    var coordinates = ol.extent.getCenter(featureExtent);
+                    var pinFeature = new ol.Feature({
+                        geometry: new ol.geom.Point(coordinates)
+                    });
+                    pinLayer.getSource().clear(); // Clear any existing pin
+                    pinLayer.getSource().addFeature(pinFeature);
+                }
+            });
 
-        // Add a pin at the center of the feature's geometry
-        var coordinates = ol.extent.getCenter(featureExtent);
-        var pinFeature = new ol.Feature({
-            geometry: new ol.geom.Point(coordinates)
-        });
-        pinLayer.getSource().clear(); // Clear any existing pin
-        pinLayer.getSource().addFeature(pinFeature);
-    }
-});
+            // Remove the pin when the map is clicked
+            map.on('singleclick', function(evt) {
+                map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                    if (feature.get('HUC12')) {
+                        pinLayer.getSource().clear(); // Clear the pin
+                    }
+                });
+            });
 
-// Remove the pin when the map is clicked
-map.on('singleclick', function(evt) {
-    map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-        if (feature.get('HUC12')) {
-            pinLayer.getSource().clear(); // Clear the pin
-        }
-    });
-});
+            // Custom Search Functionality for HUC12
+            document.getElementById('search-button').addEventListener('click', function () {
+                var huc12Value = document.getElementById('huc12-search').value.trim();
+                var found = false;
+
+                // Clear previous search results
+                pinLayer.getSource().clear();
+                document.getElementById('search-result').innerText = "";
+
+                // Search through the features in the SWOhioHUC12 layer
+                map.getLayers().item(1).getSource().forEachFeature(function (feature) {
+                    if (feature.get('HUC12') === huc12Value) {
+                        found = true;
+                        var featureExtent = feature.getGeometry().getExtent();
+                        map.getView().fit(featureExtent, {
+                            maxZoom: 12,
+                            duration: 1000
+                        });
+
+                        // Add a pin at the center of the feature's geometry
+                        var coordinates = ol.extent.getCenter(featureExtent);
+                        var pinFeature = new ol.Feature({
+                            geometry: new ol.geom.Point(coordinates)
+                        });
+                        pin
+
+Layer.getSource().addFeature(pinFeature);
+                    }
+                });
+
+                // Display a message if HUC12 is not found
+                if (!found) {
+                    document.getElementById('search-result').innerText = "HUC12 is not found.";
+                }
+            });
         </script>
     </body>
 </html>
