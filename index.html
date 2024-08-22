@@ -124,46 +124,6 @@
                     });
                 }
             });
-// Inside the script tag after the searchLayer.on('select', function(event) { ... });
-
-var pinLayer = new ol.layer.Vector({
-    source: new ol.source.Vector(),
-    style: new ol.style.Style({
-        image: new ol.style.Icon({
-            src: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-            scale: 1.0
-        })
-    })
-});
-map.addLayer(pinLayer);
-
-searchLayer.on('select', function(event) {
-    var selectedFeature = event.search;
-    if (selectedFeature) {
-        var featureExtent = selectedFeature.getGeometry().getExtent();
-        map.getView().fit(featureExtent, {
-            maxZoom: 12,
-            duration: 1000
-        });
-
-        // Add a pin at the center of the feature's geometry
-        var coordinates = ol.extent.getCenter(featureExtent);
-        var pinFeature = new ol.Feature({
-            geometry: new ol.geom.Point(coordinates)
-        });
-        pinLayer.getSource().clear(); // Clear any existing pin
-        pinLayer.getSource().addFeature(pinFeature);
-    }
-});
-
-// Remove the pin when the map is clicked
-map.on('singleclick', function(evt) {
-    map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-        if (feature.get('HUC12')) {
-            pinLayer.getSource().clear(); // Clear the pin
-        }
-    });
-});
         </script>
     </body>
 </html>
