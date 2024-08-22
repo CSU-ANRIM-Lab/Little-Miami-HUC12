@@ -36,8 +36,9 @@
         } 
         #search-container {
             position: absolute;
-            top: 70px;
-            right: 10px;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 1000;
             width: 300px;
             background-color: #c5dbea;
@@ -102,6 +103,20 @@
             // Get the HUC12 layer
             var huc12Layer = SWOhioHUC12_1;
 
+            // Vector layer for the pin
+            var pinLayer = new ol.layer.Vector({
+                source: new ol.source.Vector(),
+                style: new ol.style.Style({
+                    image: new ol.style.Icon({
+                        anchor: [0.5, 1],
+                        src: 'path/to/pin-icon.png' // Replace with the path to your pin icon
+                    })
+                })
+            });
+
+            // Add pin layer to the map
+            map.addLayer(pinLayer);
+
             // Search function
             function searchHUC12() {
                 var searchValue = document.getElementById('search-input').value.trim();
@@ -110,9 +125,22 @@
                 huc12Layer.getSource().getFeatures().forEach(function (feature) {
                     if (feature.get('HUC12') === searchValue) {
                         found = true;
-                        // Zoom to the feature if found
+                        
+                        // Get the extent and center of the feature
                         var extent = feature.getGeometry().getExtent();
+                        var center = ol.extent.getCenter(extent);
+
+                        // Zoom to the feature
                         map.getView().fit(extent, { duration: 1000 });
+
+                        // Clear any existing pins
+                        pinLayer.getSource().clear();
+
+                        // Add a new pin at the center of the feature
+                        var pinFeature = new ol.Feature({
+                            geometry: new ol.geom.Point(center)
+                        });
+                        pinLayer.getSource().addFeature(pinFeature);
                     }
                 });
 
