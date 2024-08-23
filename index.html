@@ -40,16 +40,31 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            width: 300px;
+            width: 320px;
             background-color: #c5dbea;
             padding: 10px;
             border-radius: 4px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         #search-input {
-            width: 100%;
+            width: 70%;
             padding: 5px;
             font-size: 14px;
+        }
+        #search-button {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #444444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #search-button:hover {
+            background-color: #333333;
         }
         #search-result {
             margin-top: 5px;
@@ -78,6 +93,7 @@
         <!-- Search Bar -->
         <div id="search-container">
             <input type="text" id="search-input" placeholder="Search HUC12">
+            <button id="search-button">Go</button>
             <div id="search-result"></div>
         </div>
 
@@ -157,6 +173,9 @@
                     searchHUC12();
                 }
             });
+
+            // Add event listener for the Go button
+            document.getElementById('search-button').addEventListener('click', searchHUC12);
         </script>
     </body>
 </html>
