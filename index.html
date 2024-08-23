@@ -138,27 +138,37 @@
                 var searchValue = document.getElementById('search-input').value.trim();
                 var found = false;
 
-                huc12Layer.getSource().getFeatures().forEach(function (feature) {
-                    if (feature.get('HUC12') === searchValue) {
-                        found = true;
-                        
-                        // Get the extent and center of the feature
-                        var extent = feature.getGeometry().getExtent();
-                        var center = ol.extent.getCenter(extent);
+                // Debugging: Check if huc12Layer and its source are correctly initialized
+                console.log('huc12Layer:', huc12Layer);
+                console.log('huc12Layer source:', huc12Layer.getSource());
 
-                        // Zoom to the feature
-                        map.getView().fit(extent, { duration: 1000 });
+                // Ensure the layer and source are loaded correctly
+                if (huc12Layer && huc12Layer.getSource()) {
+                    huc12Layer.getSource().getFeatures().forEach(function (feature) {
+                        console.log('Checking feature:', feature);  // Debugging: Log the feature being checked
+                        if (feature.get('HUC12') === searchValue) {
+                            found = true;
+                            
+                            // Get the extent and center of the feature
+                            var extent = feature.getGeometry().getExtent();
+                            var center = ol.extent.getCenter(extent);
 
-                        // Clear any existing pins
-                        pinLayer.getSource().clear();
+                            // Zoom to the feature
+                            map.getView().fit(extent, { duration: 1000 });
 
-                        // Add a new pin at the center of the feature
-                        var pinFeature = new ol.Feature({
-                            geometry: new ol.geom.Point(center)
-                        });
-                        pinLayer.getSource().addFeature(pinFeature);
-                    }
-                });
+                            // Clear any existing pins
+                            pinLayer.getSource().clear();
+
+                            // Add a new pin at the center of the feature
+                            var pinFeature = new ol.Feature({
+                                geometry: new ol.geom.Point(center)
+                            });
+                            pinLayer.getSource().addFeature(pinFeature);
+                        }
+                    });
+                } else {
+                    console.error('HUC12 layer or its source is not loaded correctly.');
+                }
 
                 if (!found) {
                     document.getElementById('search-result').innerText = "HUC12 is not found.";
