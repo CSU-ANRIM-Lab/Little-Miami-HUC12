@@ -116,6 +116,9 @@
         <script src="./resources/qgis2web.js"></script>
 
         <script>
+            // Initialize the map variable
+            var map;
+
             // Get the HUC12 layer
             var huc12Layer = SWOhioHUC12_1;
 
@@ -131,7 +134,10 @@
             });
 
             // Add pin layer to the map
-            map.addLayer(pinLayer);
+            function initializeMap() {
+                // Assuming the map is initialized elsewhere, ensure that pinLayer is added after map initialization
+                map.addLayer(pinLayer);
+            }
 
             // Search function
             function searchHUC12() {
@@ -186,6 +192,9 @@
 
             // Add event listener for the Go button
             document.getElementById('search-button').addEventListener('click', searchHUC12);
+
+            // Initialize the map and pin layer
+            initializeMap();
         </script>
     </body>
 </html>
