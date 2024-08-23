@@ -8,8 +8,8 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="./resources/ol.css">
         <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-        <link rel="stylesheet" type="text/css" href="resources/horsey.min.css">
-        <link rel="stylesheet" type="text/css" href="resources/ol3-search-layer.min.css">
+        <link rel="stylesheet" href="resources/horsey.min.css">
+        <link rel="stylesheet" href="resources/ol3-search-layer.min.css">
         <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
         <link rel="stylesheet" href="./resources/qgis2web.css">
         <style>
@@ -116,11 +116,21 @@
         <script src="./resources/qgis2web.js"></script>
 
         <script>
-            // Initialize the map variable
-            var map;
+            // Initialize map variable (make sure this is correctly set up in your existing code)
+            var map = new ol.Map({
+                target: 'map',
+                layers: [
+                    // Add your layers here
+                ],
+                view: new ol.View({
+                    center: [0, 0],
+                    zoom: 2
+                })
+            });
 
-            // Get the HUC12 layer
+            // Add the SWOhioHUC12 layer to the map
             var huc12Layer = SWOhioHUC12_1;
+            map.addLayer(huc12Layer);
 
             // Vector layer for the pin
             var pinLayer = new ol.layer.Vector({
@@ -132,49 +142,35 @@
                     })
                 })
             });
-
-            // Add pin layer to the map
-            function initializeMap() {
-                // Assuming the map is initialized elsewhere, ensure that pinLayer is added after map initialization
-                map.addLayer(pinLayer);
-            }
+            map.addLayer(pinLayer);
 
             // Search function
             function searchHUC12() {
                 var searchValue = document.getElementById('search-input').value.trim();
                 var found = false;
 
-                // Debugging: Check if huc12Layer and its source are correctly initialized
-                console.log('huc12Layer:', huc12Layer);
-                console.log('huc12Layer source:', huc12Layer.getSource());
+                // Search through features
+                huc12Layer.getSource().getFeatures().forEach(function (feature) {
+                    if (feature.get('HUC12') === searchValue) {
+                        found = true;
+                        
+                        // Get the extent and center of the feature
+                        var extent = feature.getGeometry().getExtent();
+                        var center = ol.extent.getCenter(extent);
 
-                // Ensure the layer and source are loaded correctly
-                if (huc12Layer && huc12Layer.getSource()) {
-                    huc12Layer.getSource().getFeatures().forEach(function (feature) {
-                        console.log('Checking feature:', feature);  // Debugging: Log the feature being checked
-                        if (feature.get('HUC12') === searchValue) {
-                            found = true;
-                            
-                            // Get the extent and center of the feature
-                            var extent = feature.getGeometry().getExtent();
-                            var center = ol.extent.getCenter(extent);
+                        // Zoom to the feature
+                        map.getView().fit(extent, { duration: 1000 });
 
-                            // Zoom to the feature
-                            map.getView().fit(extent, { duration: 1000 });
+                        // Clear any existing pins
+                        pinLayer.getSource().clear();
 
-                            // Clear any existing pins
-                            pinLayer.getSource().clear();
-
-                            // Add a new pin at the center of the feature
-                            var pinFeature = new ol.Feature({
-                                geometry: new ol.geom.Point(center)
-                            });
-                            pinLayer.getSource().addFeature(pinFeature);
-                        }
-                    });
-                } else {
-                    console.error('HUC12 layer or its source is not loaded correctly.');
-                }
+                        // Add a new pin at the center of the feature
+                        var pinFeature = new ol.Feature({
+                            geometry: new ol.geom.Point(center)
+                        });
+                        pinLayer.getSource().addFeature(pinFeature);
+                    }
+                });
 
                 if (!found) {
                     document.getElementById('search-result').innerText = "HUC12 is not found.";
@@ -183,18 +179,8 @@
                 }
             }
 
-            // Add event listener for the search input
-            document.getElementById('search-input').addEventListener('keyup', function (event) {
-                if (event.key === 'Enter') {
-                    searchHUC12();
-                }
-            });
-
-            // Add event listener for the Go button
+            // Add event listener for the search button
             document.getElementById('search-button').addEventListener('click', searchHUC12);
-
-            // Initialize the map and pin layer
-            initializeMap();
         </script>
     </body>
 </html>
