@@ -8,8 +8,8 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="./resources/ol.css">
         <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-        <link rel="stylesheet" href="resources/horsey.min.css">
-        <link rel="stylesheet" href="resources/ol3-search-layer.min.css">
+        <link rel="stylesheet" type="text/css" href="resources/horsey.min.css">
+        <link rel="stylesheet" type="text/css" href="resources/ol3-search-layer.min.css">
         <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
         <link rel="stylesheet" href="./resources/qgis2web.css">
         <style>
@@ -116,21 +116,8 @@
         <script src="./resources/qgis2web.js"></script>
 
         <script>
-            // Initialize map variable (make sure this is correctly set up in your existing code)
-            var map = new ol.Map({
-                target: 'map',
-                layers: [
-                    // Add your layers here
-                ],
-                view: new ol.View({
-                    center: [0, 0],
-                    zoom: 2
-                })
-            });
-
-            // Add the SWOhioHUC12 layer to the map
+            // Get the HUC12 layer
             var huc12Layer = SWOhioHUC12_1;
-            map.addLayer(huc12Layer);
 
             // Vector layer for the pin
             var pinLayer = new ol.layer.Vector({
@@ -142,6 +129,8 @@
                     })
                 })
             });
+
+            // Add pin layer to the map
             map.addLayer(pinLayer);
 
             // Search function
@@ -149,7 +138,6 @@
                 var searchValue = document.getElementById('search-input').value.trim();
                 var found = false;
 
-                // Search through features
                 huc12Layer.getSource().getFeatures().forEach(function (feature) {
                     if (feature.get('HUC12') === searchValue) {
                         found = true;
@@ -181,6 +169,13 @@
 
             // Add event listener for the search button
             document.getElementById('search-button').addEventListener('click', searchHUC12);
+
+            // Keep existing event listener for pressing 'Enter'
+            document.getElementById('search-input').addEventListener('keyup', function (event) {
+                if (event.key === 'Enter') {
+                    searchHUC12();
+                }
+            });
         </script>
     </body>
 </html>
