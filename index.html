@@ -110,68 +110,71 @@
     <script src="./resources/qgis2web.js"></script>
 
     <script>
-        // Get the HUC12 layer
-        var huc12Layer = SWOhioHUC12_1;
+        // Ensure the map and layer are fully loaded before running the search
+        window.onload = function() {
+            // Get the HUC12 layer
+            var huc12Layer = SWOhioHUC12_1;
 
-        // Vector layer for the pin
-        var pinLayer = new ol.layer.Vector({
-            source: new ol.source.Vector(),
-            style: new ol.style.Style({
-                image: new ol.style.Icon({
-                    anchor: [0.5, 1],
-                    src: 'path/to/pin-icon.png' // Replace with the path to your pin icon
+            // Vector layer for the pin
+            var pinLayer = new ol.layer.Vector({
+                source: new ol.source.Vector(),
+                style: new ol.style.Style({
+                    image: new ol.style.Icon({
+                        anchor: [0.5, 1],
+                        src: 'path/to/pin-icon.png' // Replace with the path to your pin icon
+                    })
                 })
-            })
-        });
-
-        // Add pin layer to the map
-        map.addLayer(pinLayer);
-
-        // Search function
-        function searchHUC12() {
-            var searchValue = Number(document.getElementById('search-input').value.trim()); // Convert input to number
-            var found = false;
-
-            huc12Layer.getSource().getFeatures().forEach(function (feature) {
-                if (Number(feature.get('HUC12')) === searchValue) { // Ensure comparison is between numbers
-                    found = true;
-                    
-                    // Get the extent and center of the feature
-                    var extent = feature.getGeometry().getExtent();
-                    var center = ol.extent.getCenter(extent);
-
-                    // Zoom to the feature
-                    map.getView().fit(extent, { duration: 1000 });
-
-                    // Clear any existing pins
-                    pinLayer.getSource().clear();
-
-                    // Add a new pin at the center of the feature
-                    var pinFeature = new ol.Feature({
-                        geometry: new ol.geom.Point(center)
-                    });
-                    pinLayer.getSource().addFeature(pinFeature);
-                }
             });
 
-            if (!found) {
-                document.getElementById('search-result').innerText = "HUC12 is not found.";
-            } else {
-                document.getElementById('search-result').innerText = "";
+            // Add pin layer to the map
+            map.addLayer(pinLayer);
+
+            // Search function
+            function searchHUC12() {
+                var searchValue = Number(document.getElementById('search-input').value.trim()); // Convert input to number
+                var found = false;
+
+                huc12Layer.getSource().getFeatures().forEach(function (feature) {
+                    if (Number(feature.get('HUC12')) === searchValue) { // Ensure comparison is between numbers
+                        found = true;
+
+                        // Get the extent and center of the feature
+                        var extent = feature.getGeometry().getExtent();
+                        var center = ol.extent.getCenter(extent);
+
+                        // Zoom to the feature
+                        map.getView().fit(extent, { duration: 1000 });
+
+                        // Clear any existing pins
+                        pinLayer.getSource().clear();
+
+                        // Add a new pin at the center of the feature
+                        var pinFeature = new ol.Feature({
+                            geometry: new ol.geom.Point(center)
+                        });
+                        pinLayer.getSource().addFeature(pinFeature);
+                    }
+                });
+
+                if (!found) {
+                    document.getElementById('search-result').innerText = "HUC12 is not found.";
+                } else {
+                    document.getElementById('search-result').innerText = "";
+                }
             }
-        }
 
-        // Add event listener for the search button
-        document.getElementById('search-button').addEventListener('click', function () {
-            searchHUC12();
-        });
-
-        // Also trigger search on 'Enter' key press
-        document.getElementById('search-input').addEventListener('keyup', function (event) {
-            if (event.key === 'Enter') {
+            // Add event listener for the search button
+            document.getElementById('search-button').addEventListener('click', function () {
                 searchHUC12();
-            }
-        });
+            });
+
+            // Also trigger search on 'Enter' key press
+            document.getElementById('search-input').addEventListener('keyup', function (event) {
+                if (event.key === 'Enter') {
+                    searchHUC12();
+                }
+            });
+        }
     </script>
 </body>
 </html>
