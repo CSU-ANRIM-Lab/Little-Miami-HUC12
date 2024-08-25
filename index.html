@@ -86,7 +86,7 @@
 
     <!-- Search Bar -->
     <div id="search-container">
-        <input type="number" id="search-input" placeholder="Search HUC12">
+        <input type="text" id="search-input" placeholder="Search HUC12">
         <button id="search-button">Go</button>
         <div id="search-result"></div>
     </div>
@@ -112,8 +112,7 @@
     <script>
         // Ensure the map and layer are fully loaded before running the search
         window.onload = function() {
-            // Ensure map object is globally available
-            var map = window.map || new ol.Map({ /*...*/ });  // Replace with actual map initialization if needed
+            var map = window.map; // Ensure map object is available
 
             // Check if SWOhioHUC12_1 is defined
             if (typeof SWOhioHUC12_1 === 'undefined') {
@@ -139,12 +138,12 @@
 
             // Search function
             function searchHUC12() {
-                var searchValue = Number(document.getElementById('search-input').value.trim()); // Convert input to number
+                var searchValue = document.getElementById('search-input').value.trim(); // Keep it as a string
                 var found = false;
 
                 if (huc12Layer && huc12Layer.getSource()) {
                     huc12Layer.getSource().getFeatures().forEach(function (feature) {
-                        if (Number(feature.get('HUC12')) === searchValue) { // Ensure comparison is between numbers
+                        if (feature.get('HUC12') === searchValue) { // Compare as strings
                             found = true;
 
                             // Get the extent and center of the feature
