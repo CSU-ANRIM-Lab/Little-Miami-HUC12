@@ -121,9 +121,7 @@
         <div id="search-result"></div>
     </div>
 
-    <!-- Ensure OpenLayers is loaded first -->
-    <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
-
+    <!-- Scripts -->
     <script src="resources/qgis2web_expressions.js"></script>
     <script src="resources/proj4.js"></script>
     <script>proj4.defs('ESRI:102003','+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0.9956,-1.9013,-0.5215,-0.025915,-0.009426,-0.011599,0.00062 +units=m +no_defs');</script>
@@ -143,12 +141,20 @@
         window.onload = function() {
             var map = window.map; // Ensure map object is available
 
-            if (typeof SWOhioHUC12_1 === 'undefined') {
+            if (typeof json_SWOhioHUC12_1 === 'undefined') {
                 console.error('Layer SWOhioHUC12_1 is not defined or not loaded.');
                 return;
             }
 
-            var huc12Layer = SWOhioHUC12_1;
+            var vectorSource = new ol.source.Vector({
+                features: (new ol.format.GeoJSON()).readFeatures(json_SWOhioHUC12_1)
+            });
+
+            var huc12Layer = new ol.layer.Vector({
+                source: vectorSource
+            });
+
+            map.addLayer(huc12Layer);
 
             // Vector layer for the pin
             var pinLayer = new ol.layer.Vector({
@@ -169,27 +175,23 @@
                 var searchValue = document.getElementById('search-input').value.trim(); // Keep it as a string
                 var found = false;
 
-                if (huc12Layer && huc12Layer.getSource()) {
-                    huc12Layer.getSource().getFeatures().forEach(function (feature) {
-                        if (feature.get('HUC12') === searchValue) { // Compare as strings
-                            found = true;
+                huc12Layer.getSource().getFeatures().forEach(function (feature) {
+                    if (feature.get('HUC12') === searchValue) { // Compare as strings
+                        found = true;
 
-                            var extent = feature.getGeometry().getExtent();
-                            var center = ol.extent.getCenter(extent);
+                        var extent = feature.getGeometry().getExtent();
+                        var center = ol.extent.getCenter(extent);
 
-                            map.getView().fit(extent, { duration: 1000 });
+                        map.getView().fit(extent, { duration: 1000 });
 
-                            pinLayer.getSource().clear();
+                        pinLayer.getSource().clear();
 
-                            var pinFeature = new ol.Feature({
-                                geometry: new ol.geom.Point(center)
-                            });
-                            pinLayer.getSource().addFeature(pinFeature);
-                        }
-                    });
-                } else {
-                    console.error('HUC12 Layer source is not defined.');
-                }
+                        var pinFeature = new ol.Feature({
+                            geometry: new ol.geom.Point(center)
+                        });
+                        pinLayer.getSource().addFeature(pinFeature);
+                    }
+                });
 
                 if (!found) {
                     document.getElementById('search-result').innerText = "HUC12 is not found.";
