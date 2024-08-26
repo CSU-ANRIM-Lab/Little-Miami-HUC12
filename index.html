@@ -121,11 +121,13 @@
         <div id="search-result"></div>
     </div>
 
+    <!-- Ensure OpenLayers is loaded first -->
+    <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+
     <script src="resources/qgis2web_expressions.js"></script>
     <script src="resources/proj4.js"></script>
     <script>proj4.defs('ESRI:102003','+proj=aea +lat_0=37.5 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0.9956,-1.9013,-0.5215,-0.025915,-0.009426,-0.011599,0.00062 +units=m +no_defs');</script>
     <script src="resources/polyfills.js"></script>
-    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Element.prototype.classList,URL"></script> <!-- Updated to HTTPS -->
     <script src="resources/horsey.min.js"></script>
     <script src="resources/ol3-search-layer.js"></script>
     <script src="resources/ol-layerswitcher.js"></script>
