@@ -55,8 +55,17 @@
                 margin-top: 5px;
                 color: red;
             }
-        </style>
-        <style>
+            #search-button {
+                margin-top: 5px;
+                padding: 5px 10px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+            #search-button:hover {
+                background-color: #45a049;
+            }
             html, body, #map {
                 width: 100%;
                 height: 100%;
@@ -77,6 +86,7 @@
         <!-- Search Bar -->
         <div id="search-container">
             <input type="text" id="search-input" placeholder="Search HUC12">
+            <button id="search-button">Search</button>
             <div id="search-result"></div>
         </div>
 
@@ -100,7 +110,7 @@
 
         <script>
             // Get the HUC12 layer
-            var huc12Layer = SWOhioHUC12_1;
+            var huc12Layer = lyr_SWOhioHUC12_1;
 
             // Vector layer for the pin
             var pinLayer = new ol.layer.Vector({
@@ -130,7 +140,7 @@
                         var center = ol.extent.getCenter(extent);
 
                         // Zoom to the feature
-                        map.getView().fit(extent, { duration: 1000 });
+                        map.getView().fit(extent, { duration: 1000, padding: [50, 50, 50, 50] });
 
                         // Clear any existing pins
                         pinLayer.getSource().clear();
@@ -140,13 +150,24 @@
                             geometry: new ol.geom.Point(center)
                         });
                         pinLayer.getSource().addFeature(pinFeature);
+
+                        // Highlight the found feature
+                        feature.setStyle(new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                color: 'red',
+                                width: 3
+                            }),
+                            fill: new ol.style.Fill({
+                                color: 'rgba(255, 0, 0, 0.1)'
+                            })
+                        }));
                     }
                 });
 
                 if (!found) {
                     document.getElementById('search-result').innerText = "HUC12 is not found.";
                 } else {
-                    document.getElementById('search-result').innerText = "";
+                    document.getElementById('search-result').innerText = "HUC12 found and highlighted.";
                 }
             }
 
@@ -156,6 +177,9 @@
                     searchHUC12();
                 }
             });
+
+            // Add event listener for the search button
+            document.getElementById('search-button').addEventListener('click', searchHUC12);
         </script>
     </body>
 </html>
