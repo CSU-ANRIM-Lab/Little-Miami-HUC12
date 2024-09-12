@@ -126,10 +126,25 @@
             // Add pin layer to the map
             map.addLayer(pinLayer);
 
+            // Variable to store the currently highlighted feature
+            var highlightedFeature = null;
+
+            // Function to remove highlight
+            function removeHighlight() {
+                if (highlightedFeature) {
+                    highlightedFeature.setStyle(null); // Reset to default style
+                    highlightedFeature = null;
+                    pinLayer.getSource().clear(); // Remove the pin
+                    document.getElementById('search-result').innerText = "";
+                }
+            }
+
             // Search function
             function searchHUC12() {
                 var searchValue = document.getElementById('search-input').value.trim();
                 var found = false;
+
+                removeHighlight(); // Remove any existing highlight
 
                 huc12Layer.getSource().getFeatures().forEach(function (feature) {
                     if (feature.get('HUC12') === searchValue) {
@@ -141,9 +156,6 @@
 
                         // Zoom to the feature
                         map.getView().fit(extent, { duration: 1000, padding: [50, 50, 50, 50] });
-
-                        // Clear any existing pins
-                        pinLayer.getSource().clear();
 
                         // Add a new pin at the center of the feature
                         var pinFeature = new ol.Feature({
@@ -161,13 +173,15 @@
                                 color: 'rgba(255, 0, 0, 0.1)'
                             })
                         }));
+
+                        highlightedFeature = feature; // Store the highlighted feature
                     }
                 });
 
                 if (!found) {
                     document.getElementById('search-result').innerText = "HUC12 is not found.";
                 } else {
-                    document.getElementById('search-result').innerText = "HUC12 found and highlighted.";
+                    document.getElementById('search-result').innerText = "HUC12 found and highlighted. Click on it to remove highlight.";
                 }
             }
 
@@ -180,6 +194,17 @@
 
             // Add event listener for the search button
             document.getElementById('search-button').addEventListener('click', searchHUC12);
+
+            // Add click event listener to the map
+            map.on('click', function(evt) {
+                var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                    return feature;
+                });
+
+                if (feature === highlightedFeature) {
+                    removeHighlight();
+                }
+            });
         </script>
     </body>
 </html>
