@@ -36,30 +36,40 @@
             } 
             #search-container {
                 position: absolute;
-                top: 120px; /* Moved from 80px to 120px */
-                right: 10px;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
                 z-index: 1000;
-                width: 250px;
+                width: auto;
                 background-color: #c5dbea;
                 padding: 10px;
                 border-radius: 4px;
                 box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
             }
             #search-input {
-                width: calc(100% - 70px);
+                width: 200px;
                 padding: 5px;
                 font-size: 14px;
                 border: none;
                 background-color: white;
+                margin-right: 5px;
             }
             #search-result {
-                margin-top: 5px;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: white;
                 color: #444444;
                 font-size: 12px;
+                padding: 5px;
+                margin-top: 5px;
+                box-sizing: border-box;
             }
             #search-button {
-                width: 60px;
-                padding: 5px;
+                padding: 5px 10px;
                 background-color: white;
                 color: #444444;
                 border: none;
