@@ -36,17 +36,26 @@
             } 
             #search-container {
                 position: absolute;
-                top: 120px; /* Moved from 80px to 120px */
-                right: 10px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 z-index: 1000;
-                width: 250px;
+                width: 300px;
                 background-color: #c5dbea;
                 padding: 10px;
                 border-radius: 4px;
                 box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #search-input-container {
+                display: flex;
+                width: 100%;
+                margin-bottom: 5px;
             }
             #search-input {
-                width: calc(100% - 70px);
+                flex-grow: 1;
                 padding: 5px;
                 font-size: 14px;
                 border: none;
@@ -56,10 +65,10 @@
                 margin-top: 5px;
                 color: #444444;
                 font-size: 12px;
+                text-align: center;
             }
             #search-button {
-                width: 60px;
-                padding: 5px;
+                padding: 5px 10px;
                 background-color: white;
                 color: #444444;
                 border: none;
@@ -92,8 +101,10 @@
 
         <!-- Search Bar -->
         <div id="search-container">
-            <input type="text" id="search-input" placeholder="Search HUC12">
-            <button id="search-button">Search</button>
+            <div id="search-input-container">
+                <input type="text" id="search-input" placeholder="Search HUC12">
+                <button id="search-button">Search</button>
+            </div>
             <div id="search-result"></div>
         </div>
 
