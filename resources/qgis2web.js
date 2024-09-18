@@ -12,7 +12,7 @@ var map = new ol.Map({
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([719401.091339, 66026.687694, 1446466.908042, 582311.686644], map.getSize());
+map.getView().fit([547448.318961, -20749.726902, 1638047.044016, 753677.771523], map.getSize());
 
 ////small screen definition
     var hasTouchScreen = map.getViewport().classList.contains('ol-touch');
@@ -535,17 +535,6 @@ geolocation.setTracking(true);
 
 //layer search
 
-var searchLayer = new SearchLayer({
-    layer: lyr_SWOhioHUC12_1,
-    colName: 'HUC12',
-    zoom: 10,
-    collapsed: true,
-    map: map
-});
-map.addControl(searchLayer);
-document.getElementsByClassName('search-layer')[0].getElementsByTagName('button')[0].className += ' fa fa-binoculars';
-document.getElementsByClassName('search-layer-input-search')[0].placeholder = 'Search feature ...';
-    
 
 //scalebar
 
