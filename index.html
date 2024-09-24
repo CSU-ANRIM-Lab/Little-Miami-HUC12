@@ -233,6 +233,12 @@
                     removeHighlight();
                 }
             });
+
+            // Add note in the lower right corner
+            var note = document.createElement('div');
+            note.className = 'note';
+            note.innerHTML = 'To learn more about the ACPF dataset, visit the <a href="https://github.com/CSU-ANRIM-Lab/Little-Miami-HUC12" target="_blank">main repository</a>.';
+            document.body.appendChild(note);
         </script>
     </body>
 </html>
