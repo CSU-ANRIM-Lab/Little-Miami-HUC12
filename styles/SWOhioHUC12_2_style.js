@@ -5,7 +5,7 @@ function categories_SWOhioHUC12_2(feature, value, size, resolution, labelText,
                        placement) {
                 switch(value.toString()) {case '0':
                     return [ new ol.style.Style({
-        stroke: new ol.style.Stroke({color: 'rgba(216,217,220,1.0)', lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 0.988}),fill: new ol.style.Fill({color: 'rgba(35,210,114,0.0)'}),
+        stroke: new ol.style.Stroke({color: 'rgba(220,218,218,1.0)', lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 1.3679999999999999}),fill: new ol.style.Fill({color: 'rgba(91,210,75,0.0)'}),
         text: createTextStyle(feature, resolution, labelText, labelFont,
                               labelFill, placement, bufferColor,
                               bufferWidth)
@@ -13,7 +13,7 @@ function categories_SWOhioHUC12_2(feature, value, size, resolution, labelText,
                     break;
 case '1':
                     return [ new ol.style.Style({
-        stroke: new ol.style.Stroke({color: 'rgba(233,236,242,1.0)', lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 0.988}),fill: new ol.style.Fill({color: 'rgba(122,182,208,1.0)'}),
+        stroke: new ol.style.Stroke({color: 'rgba(255,255,255,1.0)', lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 1.3679999999999999}),fill: new ol.style.Fill({color: 'rgba(48,209,224,1.0)'}),
         text: createTextStyle(feature, resolution, labelText, labelFont,
                               labelFill, placement, bufferColor,
                               bufferWidth)
