@@ -159,7 +159,7 @@
                 style: new ol.style.Style({
                     image: new ol.style.Icon({
                         anchor: [0.5, 1],
-                        src: 'path/to/pin-icon.png' // Replace with the path to your pin icon
+                        src: 'path/to/pin-icon.png' 
                     })
                 })
             });
@@ -173,9 +173,9 @@
             // Function to remove highlight
             function removeHighlight() {
                 if (highlightedFeature) {
-                    highlightedFeature.setStyle(null); // Reset to default style
+                    highlightedFeature.setStyle(null); 
                     highlightedFeature = null;
-                    pinLayer.getSource().clear(); // Remove the pin
+                    pinLayer.getSource().clear(); 
                     document.getElementById('search-result').innerText = "";
                 }
             }
@@ -185,7 +185,7 @@
                 var searchValue = document.getElementById('search-input').value.trim();
                 var found = false;
 
-                removeHighlight(); // Remove any existing highlight
+                removeHighlight(); 
 
                 huc12Layer.getSource().getFeatures().forEach(function (feature) {
                     if (feature.get('HUC12') === searchValue) {
@@ -215,7 +215,7 @@
                             })
                         }));
 
-                        highlightedFeature = feature; // Store the highlighted feature
+                        highlightedFeature = feature; 
                     }
                 });
 
