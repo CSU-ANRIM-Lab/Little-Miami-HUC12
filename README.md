@@ -74,7 +74,7 @@ If you use these datasets in your research or projects, please cite as follows:
 
 ## Contact
 
-For questions or further information about the datasets, feel free to reach out:
+For questions about data access or further information about the datasets, feel free to reach out:
 
-- **Name**: [CSU-ANRIM-Lab]
+- **Name**: Eric Ariel L. Salas, Ph.D. 
 - **GitHub**: [CSU-ANRIM-Lab](https://github.com/CSU-ANRIM-Lab)
