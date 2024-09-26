@@ -64,7 +64,7 @@ The provided datasets are in **shapefile** format and can be easily integrated i
 
 ## Licensing
 
-The datasets are provided under the [MIT License](LICENSE). Please review the license before use.
+The datasets are provided under the [MIT License](https://github.com/git/git-scm.com/blob/main/MIT-LICENSE.txt). Please review the license before use.
 
 ## Citation
 
