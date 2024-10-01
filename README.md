@@ -6,7 +6,7 @@ This repository provides essential datasets from the **Agricultural Conservation
 
 ### What is the ACPF?
 
-The ACPF is a set of geospatial tools developed to help identify site-specific conservation practices in agricultural watersheds. It provides a non-prescriptive menu of conservation options, assisting decision-makers in planning the most effective practices for improving water quality and enhancing soil health.
+The ACPF is a set of geospatial tools developed to help identify site-specific conservation practices in agricultural watersheds. It provides a non-prescriptive menu of conservation options, assisting decision-makers in planning the most effective practices for improving water quality and enhancing soil health. More about the ACPF, [here](https://acpf4watersheds.org/).
 
 ## Study Area
 
