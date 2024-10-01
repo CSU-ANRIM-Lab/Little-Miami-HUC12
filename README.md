@@ -76,5 +76,5 @@ If you use these datasets in your research or projects, please cite as follows:
 
 For questions about data access or further information about the datasets, feel free to reach out:
 
-- **Name**: Eric Ariel L. Salas, Ph.D. 
+- **Name**: [Eric Ariel L. Salas, Ph.D](mailto:esalas@centralstate.edu?subject=[GitHub]%20ACPF%20Dataset) or [Sakthi S. Kumaran, Ph.D.](mailto:ssubburayalu@centralstate.edu?subject=[GitHub]%20ACPF%20Dataset)
 - **GitHub**: [CSU-ANRIM-Lab](https://github.com/CSU-ANRIM-Lab)
