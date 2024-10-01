@@ -70,7 +70,7 @@ The datasets are provided under the [MIT License](https://github.com/git/git-scm
 
 If you use these datasets in your research or projects, please cite as follows:
 
-> Salas, E.A.L. and Kumaran, S.S. 2024. ACPF Datasets for Agricultural Conservation and Soil Health Assessment, Great Miami and Little Miami Watersheds. Retrieved from [GitHub Repository Link](https://csu-anrim-lab.github.io/Little-Miami-HUC12/), [Accessed Date].
+> Salas, E.A.L. and Kumaran, S.S. 2024. ACPF Datasets for Agricultural Conservation and Soil Health Assessment, Great Miami and Little Miami Watersheds. Retrieved from [https://csu-anrim-lab.github.io/Little-Miami-HUC12](https://csu-anrim-lab.github.io/Little-Miami-HUC12/), [Accessed Date].
 
 ## Contact
 
